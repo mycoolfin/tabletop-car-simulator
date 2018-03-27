@@ -13,7 +13,7 @@ PINK_MIN = np.array([160, 50, 50],np.uint8)
 PINK_MAX = np.array([170, 255, 255],np.uint8)
 
 
-def main(rpiCam=True):
+def main(rpiCam=False):
     if rpiCam: # Special init for RPi camera.
         from picamera.array import PiRGBArray
         from picamera import PiCamera
@@ -58,10 +58,10 @@ def track_cars(image):
     _, pink_contours, _ = cv2.findContours(pink_closed, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
 
 
-    infoList = [(orange_closed, orange_contours, (0, 136, 255)),
-                (red_closed, red_contours, (0, 0, 255)),
-                (green_closed, green_contours, (0, 255, 0)),
-                (pink_closed, pink_contours, (144, 0, 255))]
+    infoList = [#(orange_closed, orange_contours, (0, 136, 255)),
+                #(red_closed, red_contours, (0, 0, 255)),
+                (green_closed, green_contours, (0, 255, 0)),]
+                #(pink_closed, pink_contours, (144, 0, 255))]
     for closed, contours, colour in infoList:
         if len(contours) > 0:
             # TODO: We know how big the cars should be - use this knowledge to filter bad boxes.
