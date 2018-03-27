@@ -1,15 +1,27 @@
-import vehicle
+import controller.vehicle as vehicle
 
 msgHeader = "[AGENT]: "
 
 class Agent():
-    def __init__(self, ID, agentType="robot", vehicleType=vehicle.Car, strategyFile=None):
+    def __init__(self, ID, agentType="robot", vehicleType="car", strategyFile=None):
         self.ID = str(ID)
         if agentType == "human":
             self.cone_of_vision = 120
         else:
             self.cone_of_vision = 360
-        self.vehicle = vehicleType(self)
+
+        if vehicleType.lower() == "car":
+            self.vehicle = vehicle.Car(self)
+        elif vehicleType.lower() == "truck":
+            self.vehicle = vehicle.Truck(self)
+        elif vehicleType.lower() == "motorcycle":
+            self.vehicle = vehicle.Motorcycle(self)
+        elif vehicleType.lower() == "bicycle":
+            self.vehicle = vehicle.Bicycle(self)
+        else:
+            print(msgHeader + "Could not initialise Agent " + self.ID + " with vehicle type '" + vehicleType + "'.")
+            self.vehicle = vehicle.Car(self)
+
         self.worldKnowledge = {'waypoints': [],
                                'obstacles': []}
         self.strategy = None
@@ -19,7 +31,8 @@ class Agent():
                     self.strategy = f.read()
                 print(msgHeader + "Successfully loaded the strategy file for Agent " + self.ID + ".")
             except:
-                print(msgHeader + "Could not open the strategy file for Agent " + self.ID + ".")
+                print(msgHeader + "Could not open the strategy file for Agent " + self.ID + ". (Fatal)")
+                exit()
 
     def update_world_knowledge(self, worldData):
         # TODO: Work on this.

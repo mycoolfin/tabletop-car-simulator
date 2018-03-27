@@ -1,14 +1,12 @@
-from agent import Agent
-from vision import Vision
-from world import World
-from display import Display
-from zenwheels.cars import *
-from zenwheels.comms import CarCommunicator
+from controller.agent import Agent
+from controller.vision import Vision
+from controller.world import World
+from controller.display import Display
+from controller.zenwheels.cars import *
+from controller.zenwheels.comms import CarCommunicator
 
 
-ACTIVE_CARS = [ORANGE_CAR_ID]
-
-if __name__ == "__main__":
+def main(map_image_path, map_info_path, car_parameters):
     print("")
     print("========================================")
     print("         TABLETOP CAR SIMULATOR         ")
@@ -19,13 +17,17 @@ if __name__ == "__main__":
     vision = Vision()
 
     # Initialise display.
-    display = Display()
+    display = Display(map_image_path=map_image_path)
 
     # Initialise agents and their vehicles.
     agents = []
     vehicles = []
-    for agentID in ACTIVE_CARS:
-        agent = Agent(agentID, strategyFile="strategies/spazout.txt")
+    for car in car_parameters:
+        enabled = car[2]
+        if not enabled:
+            continue
+        agentID = MAC_TO_ID[car[1]]
+        agent = Agent(agentID, agentType=car[4], vehicleType=car[5], strategyFile=car[3])
         agents.append(agent)
         vehicles.append(agent.vehicle)
 

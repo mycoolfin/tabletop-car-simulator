@@ -2,6 +2,8 @@ import pygame
 from os import listdir
 from os.path import isfile
 
+import controller.main as cont
+
 #Defining my colours
 BLACK = (0,0,0)
 WHITE = (255,255,255)
@@ -168,7 +170,11 @@ def onClick_launch_button(button):
     global done
     if (button == 0):
         done = 1
-        #Call michael's program from here using params
+        # TODO: Rhys to fill these in.
+        map_path =
+        map_info =
+        car_params =
+        cont.main(map_path, map_info, car_params)
     
 def init_buttons():
     #Map image button

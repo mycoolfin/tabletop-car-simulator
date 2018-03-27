@@ -6,10 +6,13 @@ msgHeader = "[DISPLAY]: "
 DISPLAY_WIDTH = 1200
 DISPLAY_HEIGHT = 900
 
-BACKGROUND_IMAGE_PATH = "media/map_image.jpg"
+DEFAULT_MAP_PATH = "media/map_image.jpg"
 
 class Display():
-    def __init__(self):
+    def __init__(self, map_image_path=None):
+        self.background_image_path = DEFAULT_MAP_PATH
+        if map_image_path:
+            self.background_image_path = map_image_path
         pygame.init()
         self.screen = pygame.display.set_mode((DISPLAY_WIDTH, DISPLAY_HEIGHT), pygame.FULLSCREEN)
         self.background_image = self.loadBackground()
@@ -18,10 +21,14 @@ class Display():
 
     # Load and scale background image.
     def loadBackground(self):
-        background_image = pygame.image.load(BACKGROUND_IMAGE_PATH)
-        scale_factor = DISPLAY_WIDTH / background_image.get_rect().size[0]
-        background_image = pygame.transform.rotozoom(background_image, 0, scale_factor)
-        return background_image
+        try:
+            background_image = pygame.image.load(self.background_image_path)
+            scale_factor = DISPLAY_WIDTH / background_image.get_rect().size[0]
+            background_image = pygame.transform.rotozoom(background_image, 0, scale_factor)
+            return background_image
+        except:
+            print(msgHeader + "Could not load map image from path " + self.background_image_path + ". (Fatal)")
+            exit()
 
     # Create image from raw world data.
     def createImage(self, worldData):
