@@ -170,11 +170,16 @@ def onClick_launch_button(button):
     global done
     if (button == 0):
         done = 1
-        # TODO: Rhys to fill these in.
-        map_path =
-        map_info =
-        car_params =
-        cont.main(map_path, map_info, car_params)
+        car_params = car_data
+        en_convert = [False, True]
+        index = 0
+        while (index < 4)
+            car_params[index][2] = en_convert[car_data[index][2]]
+            car_params[index][3] = strategy_paths[car_data[index][3]]
+            car_params[index][4] = vision_modes[car_data[index][4]]
+            car_params[index][5] = car_types[car_data[index][5]]
+            index+=1
+        cont.main(map_maths[currentMap], map_info[currentMap], car_params)
     
 def init_buttons():
     #Map image button
