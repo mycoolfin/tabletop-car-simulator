@@ -4,6 +4,7 @@ from controller.world import World
 from controller.display import Display
 from controller.zenwheels.cars import *
 from controller.zenwheels.comms import CarCommunicator
+import time
 
 
 def main(map_image_path, map_info_path, car_parameters):
@@ -18,6 +19,8 @@ def main(map_image_path, map_info_path, car_parameters):
 
     # Initialise display.
     display = Display(map_image_path=map_image_path)
+    # Display loading screen.
+    display.loadingScreen()
 
     # Initialise agents and their vehicles.
     agents = []

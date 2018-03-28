@@ -53,6 +53,12 @@ class Display():
             except Exception as e:
                 pass
 
+    def loadingScreen(self):
+        self.screen.fill((255,255,255))
+        text = self.font.render("Connecting to cars...", True, (0,0,0))
+        self.screen.blit(text, (DISPLAY_WIDTH-300,DISPLAY_HEIGHT-300))
+        pygame.display.flip()
+
     def handle_input(self):
         for event in pygame.event.get():
             if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
