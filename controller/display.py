@@ -3,10 +3,10 @@ from pygame.locals import *
 
 msgHeader = "[DISPLAY]: "
 
-DISPLAY_WIDTH = 1200
-DISPLAY_HEIGHT = 900
+DISPLAY_WIDTH = 1600
+DISPLAY_HEIGHT = 1200
 
-DEFAULT_MAP_PATH = "media/map_image.jpg"
+DEFAULT_MAP_PATH = "./resources/maps/autocars_default/map_default.png"
 
 class Display():
     def __init__(self, map_image_path=None):
@@ -36,7 +36,8 @@ class Display():
         yOffset = 0
         for vehicle in worldData['vehicles']:
             try:
-                pos = (vehicle.position[0], DISPLAY_HEIGHT - vehicle.position[1])
+                scaler = 1.333333333
+                pos = (int(vehicle.position[0]*scaler), DISPLAY_HEIGHT - int((vehicle.position[1]*scaler)))
                 angle = vehicle.orientation
                 #width, length = vehicle.dimensions
                 #template = pygame.Surface((width,length))
