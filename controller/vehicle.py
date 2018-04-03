@@ -4,30 +4,27 @@ from controller.zenwheels.protocol import *
 
 
 class Vehicle:
-    # Vehicle properties.
-    owner = None
-    position = None, None   # World coordinates (x, y).
-    orientation = None      # Degrees clockwise from north.
-    dimensions = None, None # Size and shape (width, length).
-    max_speed = None
-    max_acceleration = None
-    max_deceleration = None
-    max_turn = None
-    max_turn_change = None
-
-    # Vehicle state.
-    current_speed = None
-    current_angle = None
-    horn_active = False
-    headlights_active = False
-    left_signal_active = False
-    right_signal_active = False
-
-    # List of commands to be sent to the corresponding ZenWheels car.
-    command_queue = None
-
     def __init__(self, owner):
-        self.owner = owner
+        # Vehicle properties.
+        self.owner = None
+        self.position = None, None  # World coordinates (x, y).
+        self.orientation = None  # Degrees clockwise from north.
+        self.dimensions = None, None  # Size and shape (width, length).
+        self.max_speed = None
+        self.max_acceleration = None
+        self.max_deceleration = None
+        self.max_turn = None
+        self.max_turn_change = None
+
+        # Vehicle state.
+        self.current_speed = None
+        self.current_angle = None
+        self.horn_active = False
+        self.headlights_active = False
+        self.left_signal_active = False
+        self.right_signal_active = False
+
+        # List of commands to be sent to the corresponding ZenWheels car.
         self.command_queue = {}
 
     def set_speed(self, speed):
