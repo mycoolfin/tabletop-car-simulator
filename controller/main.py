@@ -34,7 +34,12 @@ def main(map_image_path, map_info_path, car_parameters):
         vehicles.append(agent.vehicle)
 
     # Initialise world.
-    world = World(agents, vehicles)
+	# Extract waypoints from map info file.
+	waypoints = []
+	f = open(map_info_path,'r')
+	waypoints = eval(f.read())
+	
+    world = World(agents, vehicles, waypoints)
 
     # Initialise car communicator.
     comms = CarCommunicator(vehicles)

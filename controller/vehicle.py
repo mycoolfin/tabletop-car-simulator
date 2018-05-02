@@ -1,4 +1,5 @@
 import time
+import math
 
 from controller.zenwheels.protocol import *
 
@@ -7,6 +8,7 @@ class Vehicle:
     def __init__(self, owner):
         # Vehicle properties.
         self.owner = None
+		self.waypoint_index = None	# Keeps track of waypoint progression.
         self.position = None, None  # World coordinates (x, y).
         self.orientation = None  # Degrees clockwise from north.
         self.dimensions = None, None  # Size and shape (width, length).
@@ -51,6 +53,47 @@ class Vehicle:
                 angle = 128 + angle
             self.queueCommand(bytes([STEERING, angle]))
 
+	#Return angle from vehicle to current waypoint, as a bearing with 0 degrees due North.
+	def get_bearing_to_waypoint(self):
+		if (world.worldData['waypoints'] != []):
+			x1 = self.position[0]
+			y1 = self.position[0]
+			x2 = world.worldData['waypoints'][self.waypoint_index][0]
+			y2 = world.worldData['waypoints'][self.waypoint_index][1]
+			dx = x2 - x1
+			dy = y2 - y1
+			theta = -(math.atan2(dy,dx)*180/math.pi - 90)
+			if (theta < 0):
+				theta += 360
+			return theta
+		else:
+			return -1
+	#Return absolute value of distance from vehicle to current waypoint.		
+	def get_distance_to_waypoint(self):
+		if (world.worldData['waypoints'] != []):
+			x1 = self.position[0]
+			y1 = self.position[0]
+			x2 = world.worldData['waypoints'][self.waypoint_index][0]
+			y2 = world.worldData['waypoints'][self.waypoint_index][1]
+			dx = x2 - x1
+			dy = y2 - y1
+			return math.sqrt(dx*dx + dy*dy)
+		else:
+			return -1
+	#Return current waypoint index
+	def get_waypoint_index(self):
+		return self.waypoint_index
+	#Set current waypoint index
+	def set_waypoint_index(self, wp):
+		max = len(world.worldData['waypoints']) - 1
+		if (wp > max):
+			wp = max
+		if (wp < 0):
+			wp = 0
+		self.waypoint_index = wp
+	def get_orientation(self):
+		return self.orientation
+	
     def stop(self):
         self.queueCommand(bytes([THROTTLE, 0]))
 

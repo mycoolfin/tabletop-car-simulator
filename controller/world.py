@@ -2,7 +2,7 @@
 msgHeader = "[WORLD]: "
 
 class World():
-    def __init__(self, agents, vehicles, waypoints=None):
+    def __init__(self, agents, vehicles, waypoints):
         self.worldData = {'agents': agents, 'vehicles': vehicles, 'waypoints': waypoints}
         print(msgHeader + "Initialisation complete.")
 
