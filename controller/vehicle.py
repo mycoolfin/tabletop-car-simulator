@@ -6,7 +6,7 @@ from controller.zenwheels.protocol import *
 class Vehicle:
     def __init__(self, owner):
         # Vehicle properties.
-        self.owner = None
+        self.owner = owner
         self.position = None, None  # World coordinates (x, y).
         self.orientation = None  # Degrees clockwise from north.
         self.dimensions = None, None  # Size and shape (width, length).
