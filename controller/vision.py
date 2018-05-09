@@ -29,34 +29,12 @@ class Vision():
         car_locations = []
         for mac_address in MAC_TO_ID:
             if mac_address in visionData:
+                print("Found: " + mac_address)
                 agentID = MAC_TO_ID[mac_address]
                 pos = (visionData[mac_address][1], visionData[mac_address][2])
                 angle = visionData[mac_address][5]
                 observed_car = {'ID': agentID, 'position': pos, 'orientation': angle}
-                car_locations.append(observed_car)
-				
-				#Located individual car, may need to assign it to a waypoint.
-				#If a car is does not have an assigned waypoint, direct it to the closest one.
-				dists = world.worldData['waypoints']
-				if dists != None:
-					for a in agents:
-						if (a.ID == agentID):
-							if (a.vehicle.waypoint_index == None):
-								#Need to assign this vehicle to a waypoint
-								closest_wp = 0
-								index = 0
-								for wp in world.worldData['waypoints']:
-									dx = pos[0] - wp[0]
-									dy = pos[1] - wp[1]
-									dists[index] = dx*dx + dy*dy
-									if (dists[index] < dists[closest_wp]):
-										closest_wp = index
-									index += 1
-								a.vehicle.waypoint_index = closest_wp
-				else:
-					#No waypoints are currently loaded into world
-					print("No waypoints detected")
-				
+                car_locations.append(observed_car)				
         return car_locations
 
 class Server():

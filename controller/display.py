@@ -46,6 +46,7 @@ class Display():
                 #img = pygame.transform.rotate(template, angle)
                 #img_rect = img.get_rect(center=pos)
                 #self.screen.blit(img, img_rect)
+                
                 text = self.font.render("Agent " + str(vehicle.owner.ID) + ": " + str(pos) + ", " + str(angle), True, (255,255,255))
                 self.screen.blit(text, (50, yOffset))
                 yOffset += 30
@@ -70,5 +71,15 @@ class Display():
     def update(self, worldData):
         self.handle_input()
         self.createImage(worldData)
+
+        self.screen.blit(self.font.render("o", True, (120,255,0)), (500,500))
+        vx = worldData['vehicles'][0].position[0]
+        vy = worldData['vehicles'][0].position[1]
+        if (vx is not None and vy is not None):
+            self.screen.blit(self.font.render("o", True, (0,255,120)), (vx,vy))
+        else:
+            print("Got some None values yo")
+        
+        
         pygame.display.flip()
 

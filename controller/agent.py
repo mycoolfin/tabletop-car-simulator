@@ -1,4 +1,5 @@
 import controller.vehicle as vehicle
+import math
 
 msgHeader = "[AGENT]: "
 

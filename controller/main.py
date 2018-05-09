@@ -34,10 +34,10 @@ def main(map_image_path, map_info_path, car_parameters):
         vehicles.append(agent.vehicle)
 
     # Initialise world.
-	# Extract waypoints from map info file.
-	waypoints = []
-	f = open(map_info_path,'r')
-	waypoints = eval(f.read())
+    # Extract waypoints from map info file.
+    waypoints = []
+    f = open(map_info_path,'rb')
+    waypoints = eval(f.read())
 	
     world = World(agents, vehicles, waypoints)
 
@@ -49,6 +49,7 @@ def main(map_image_path, map_info_path, car_parameters):
         car_locations = vision.locateCars()
         world.update(car_locations)
         display.update(world.getWorldData())
+        
         for agent in agents:
             agent.update_world_knowledge(world.getWorldData())
             agent.make_decision()
