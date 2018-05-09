@@ -317,42 +317,32 @@ while (done == 0):
             #Note which button was tapped
             #0=A, 1=B, X,Y,LB,RB,St,Se
             index = 0
-            while (index < 8):
+            while (index < 6):
                 if (joystick.get_button(index)):
                     button_tapped = index
+
                     break
                 index += 1
-        if event.type == pygame.JOYHATMOTION:
-            #Parse hat directions
-            this_hat = joystick.get_hat(0)
-            #Get difference between hat states
-            hat_diff = [this_hat[0] - last_hat[0], this_hat[1] - last_hat[1]]
-            #Did we push left or right?
-            if (hat_diff[0] != 0 and this_hat[0] != 0):
-                for b in buttons:
-                    if (b.hover == 1):
-                        temp = -1*hat_diff[0]+2
-                        if (temp >= 0 and temp <= 3):
-                            b.go_next(temp)
-                        break
-            #Did we push up or down?
-            if (hat_diff[1] != 0 and this_hat[1] != 0):
-                for b in buttons:
-                    if (b.hover == 1):
-                        temp = -1*hat_diff[1]+1
-                        if (temp >= 0 and temp <= 3):
-                            b.go_next(temp)
-                        break
-            last_hat = this_hat
 
     #Deal with button tap
     if (button_tapped != -1):
         #We hit a button!
         for b in buttons:
             if (b.hover == 1):
-                b.onClick(button_tapped)
+                if (button_tapped <= 3):
+                    temp = [2,1,3,0]
+                    b.go_next(temp[button_tapped])
+                    button_tapped = -1
+                    break
+                if (button_tapped == 4):
+                    b.onClick(1)
+                    break
+                if (button_tapped == 5):
+                    b.onClick(0)
+                    break
 
     #Wash with clean background
+    screen.fill(pygame.Color("black"))
     screen.blit(bg,(0,0))
 
     #Draw all buttons
