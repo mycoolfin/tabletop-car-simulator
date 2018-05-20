@@ -25,6 +25,7 @@ class Vehicle:
         self.headlights_active = False
         self.left_signal_active = False
         self.right_signal_active = False
+        self.noneTicks = 0  # Used to remember how many times we have recieved no information
 
         # List of commands to be sent to the corresponding ZenWheels car.
         self.command_queue = {}

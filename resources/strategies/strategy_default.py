@@ -8,9 +8,13 @@ Aim to slowly navigate waypoints in an orderly fashion with some basic error che
 
 #If we don't know where we are, STOP
 if self.vehicle.position == (None, None):
-    self.vehicle.stop()
+    self.vehicle.noneTicks += 1
+    if (self.vehicle.noneTicks >= 10):
+        self.vehicle.stop()
+
 
 else:
+    self.vehicle.noneTicks = 0
     #Find waypoint vector info
     (wp_dist,wp_angle) = self.vehicle.get_vector_to_waypoint()
 
