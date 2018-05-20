@@ -6,11 +6,12 @@ import controller.main as cont
 
 #Defining my colours
 BLACK = (0,0,0)
+GRAY = (100,100,100)
 WHITE = (255,255,255)
-RED = (255,0,0)
-GREEN = (0,255,0)
+RED = (150,0,0)
+GREEN = (0,150,0)
 DARKGREEN = (30,180,30)
-BLUE = (0,0,255)
+BLUE = (0,0,150)
 CYAN = (50,220,220)
 YELLOW = (220,220,50)
 
@@ -38,18 +39,20 @@ for file in listdir(STRATEGIES_FOLDER):
 
 #Initialise output constructs
 currentCar = 0
-vision_modes = ["robot", "human"]
-car_types = ["car", "truck", "motorcycle", "bicycle"]
+vision_modes = ["Regular", "Perfect"]
+car_types = ["Car", "Truck", "Motorcycle", "Bicycle"]
 en_text = ["Enabled", "Disabled"]
-#car_data -> [desc,MAC,enabled,stratFile,visMode,carType]
+#car_data -> [desc,MAC,enabled,stratFile,visMode]
 car_data = [["Red Car", "00:06:66:61:A4:6B", 0,0,0,0],
             ["Green Car","00:06:66:61:A9:3D", 0,0,0,0],
             ["Orange Car","00:06:66:61:9B:2D", 0,0,0,0],
             ["Pink Car","00:06:66:47:0A:0A", 0,0,0,0]]
-car_paths = [MEDIA_FOLDER + "red_car.png",
-             MEDIA_FOLDER + "green_car.png",
-             MEDIA_FOLDER + "orange_car.png",
-             MEDIA_FOLDER + "pink_car.png"]
+car_paths = [MEDIA_FOLDER + "redcar.jpg",
+             MEDIA_FOLDER + "greencar.jpg",
+             MEDIA_FOLDER + "orangecar.jpg",
+             MEDIA_FOLDER + "pinkcar.jpg"]
+#map_data -> [carType,wetRoad,wind,fog,night,perfGPS]
+map_data = [0,0,0,0,0]
 
 #Label class
 class Label:
@@ -134,12 +137,16 @@ def loadMap(map_index):
 def loadCar(car_index):
     buttons[1].img = car_paths[car_index]
     buttons[2].selected = 1 - car_data[car_index][2]
+    buttons[2].text = en_text[buttons[2].selected]
     buttons[3].text = strategy_paths[car_data[car_index][3]]
     buttons[4].text = vision_modes[car_data[car_index][4]]
     buttons[5].text = car_types[car_data[car_index][5]]
     labels[2].text = car_data[car_index][0] + "  |  " + car_data[car_index][1]
-    labels[3].text = en_text[buttons[2].selected]
-    labels[3].color = buttons[2].colors[buttons[2].selected]
+    buttons[7].selected = 1 - map_data[0]
+    buttons[8].selected = 1 - map_data[1]
+    buttons[9].selected = 1 - map_data[2]
+    buttons[10].selected = 1 - map_data[3]
+    buttons[11].selected = 1 - map_data[4]
 
 #Button onClick methods
 def onClick_map_image_button(button):
@@ -156,6 +163,26 @@ def onClick_car_image_button(button):
 
 def onClick_car_enabled_button(button):
     car_data[currentCar][2] = 1 - car_data[currentCar][2]
+    loadCar(currentCar)
+
+def onClick_wet_road_button(button):
+    map_data[0] = 1 - map_data[0]
+    loadCar(currentCar)
+
+def onClick_wind_button(button):
+    map_data[1] = 1 - map_data[1]
+    loadCar(currentCar)
+
+def onClick_fog_button(button):
+    map_data[2] = 1 - map_data[2]
+    loadCar(currentCar)
+
+def onClick_night_button(button):
+    map_data[3] = 1 - map_data[3]
+    loadCar(currentCar)
+
+def onClick_perfGPS_button(button):
+    map_data[4] = 1 - map_data[4]
     loadCar(currentCar)
 
 def onClick_strategy_text_button(button):
@@ -178,6 +205,7 @@ def onClick_launch_button(button):
     if (button == 0):
         done = 1
         car_params = car_data
+        map_params = map_data
         en_convert = [False, True]
         index = 0
         while (index < 4):
@@ -187,77 +215,121 @@ def onClick_launch_button(button):
             car_params[index][5] = car_types[car_data[index][5]]
             index+=1
         pygame.quit()
-        cont.main(map_paths[currentMap], map_info_paths[currentMap], car_params)
+        cont.main(map_paths[currentMap], map_info_paths[currentMap], car_params, map_params)
     
 def init_buttons():
     #Map image button
-    t = Button(150,60,450,300)
+    t = Button(20,20,450,300)
     t.id = "map_image_button"
     t.img = MAP_FOLDER + "autocars_map_basic/map_basic.png"
-    t.next = [-1,6,1,-1]
+    t.next = [-1,7,1,-1]
     t.onClick = onClick_map_image_button
     t.hover = 1
 
     #Car image button
-    t = Button(150,460,450,300)
+    t = Button(20,450,450,300)
     t.id = "car_image_button"
     t.img = car_paths[0]
-    t.next = [0,2,3,-1]
+    t.next = [0,11,2,-1]
     t.onClick = onClick_car_image_button
 
     #Car enabled button
-    t = Button(650,660,100,100)
+    t = Button(350,770,120,50)
     t.id = "car_enabled_button"
-    t.next = [-1,6,-1,1]
+    t.next = [1,11,3,-1]
     t.onClick = onClick_car_enabled_button
     t.colors = [GREEN,RED,BLACK,CYAN]
+    t.text = "Disabled"
 
     #Strategy text button
-    t = Button(250,860,800,60)
+    t = Button(200,860,800,60)
     t.id = "strategy_text_button"
-    t.next = [1,6,4,-1]
+    t.next = [2,6,4,-1]
     t.onClick = onClick_strategy_text_button
     t.text = "Default"
+    t.font = pygame.font.SysFont("comicsansms", 40)
 
     #Agent type text button
-    t = Button(250,960,800,60)
+    t = Button(200,960,800,60)
     t.id = "agent_type_button"
     t.next = [3,6,5,-1]
     t.onClick = onClick_vision_text_button
     t.text = "Default"
+    t.font = pygame.font.SysFont("comicsansms", 40)
 
     #Car type text button
-    t = Button(250,1060,800,60)
+    t = Button(200,1060,800,60)
     t.id = "car_type_button"
     t.next = [4,6,-1,-1]
     t.onClick = onClick_cartype_text_button
     t.text = "Default"
+    t.font = pygame.font.SysFont("comicsansms", 40)
 
     #Launch button
-    t = Button(1210,620,400,500)
+    t = Button(1150,500,300,200)
     t.id = "launch_button"
-    t.next = [-1,-1,-1,1]
+    t.next = [-1,-1,3,11]
     t.onClick = onClick_launch_button
     t.colors = [DARKGREEN,RED,BLACK,CYAN]
     t.text = "Launch"
     t.font = pygame.font.SysFont("comicsansms", 80)
 
+    # Wet Road button
+    t = Button(650, 100, 300, 80)
+    t.id = "wet_road_button"
+    t.next = [-1, 6, 8, 0]
+    t.onClick = onClick_wet_road_button
+    t.colors = [GREEN, RED, BLACK, CYAN]
+    t.text = "Wet Road"
+
+    # Wind button
+    t = Button(650, 200, 300, 80)
+    t.id = "wind_button"
+    t.next = [7, 6, 9, 0]
+    t.onClick = onClick_wind_button
+    t.colors = [GREEN, RED, BLACK, CYAN]
+    t.text = "Wind"
+
+    # Fog button
+    t = Button(650, 300, 300, 80)
+    t.id = "fog_button"
+    t.next = [8, 6, 10, 1]
+    t.onClick = onClick_fog_button
+    t.colors = [GREEN, RED, BLACK, CYAN]
+    t.text = "Fog"
+
+    # Night button
+    t = Button(650, 400, 300, 80)
+    t.id = "night_button"
+    t.next = [9, 6, 11, 1]
+    t.onClick = onClick_night_button
+    t.colors = [GREEN, RED, BLACK, CYAN]
+    t.text = "Night Time"
+
+    # Perfect GPS button
+    t = Button(650, 500, 300, 80)
+    t.id = "perfGPS_button"
+    t.next = [10, 6, 3, 1]
+    t.onClick = onClick_perfGPS_button
+    t.colors = [GREEN, RED, BLACK, CYAN]
+    t.text = "GPS Noise"
+
 def init_labels():
     #Map file label
-    t = Label(650,60,"Default")
+    t = Label(20,350,"Default")
     #Map data file label
-    t = Label(650,120,"Default")
+    t = Label(20,380,"Default")
     #Car ID label
-    t = Label(650,460,"Default")
-    #Car Enabled label
-    t = Label(810,690,"Default")
-    t.color = GREEN
+    t = Label(20,780,"Default")
     #Strategy file label
-    t = Label(94,864,"Strategy:")
+    t = Label(20,872,"Strategy:")
+    t.font = pygame.font.SysFont("comicsansms", 40)
     #Vision mode label
-    t = Label(60,964,"Vision Mode:")
+    t = Label(20,972,"Vision Mode:")
+    t.font = pygame.font.SysFont("comicsansms", 40)
     #Car type label
-    t = Label(98,1064,"Car Type:")
+    t = Label(20,1072,"Vehicle:")
+    t.font = pygame.font.SysFont("comicsansms", 40)
 
 
 
@@ -279,10 +351,7 @@ size = [1600, 1200]
 screen = pygame.display.set_mode(size, pygame.FULLSCREEN)
 #Give my game window a title
 pygame.display.set_caption("Title Screen")
-#Install sexy background (same as screen size)
-bg = pygame.image.load(MEDIA_FOLDER + "bg_black.jpg")
-scale_factor = size[0] / bg.get_rect().size[0]
-background_image = pygame.transform.rotozoom(bg, 0, scale_factor)
+
 
 #Initialise pygame clock
 clock = pygame.time.Clock()
@@ -343,7 +412,11 @@ while (done == 0):
 
     #Wash with clean background
     screen.fill(pygame.Color("black"))
-    screen.blit(bg,(0,0))
+    #Draw UI Divisions
+    pygame.draw.rect(screen, GRAY, (1050, 0, 10, 1200), 0)
+    pygame.draw.rect(screen, GRAY, (0, 430, 500, 10), 0)
+    pygame.draw.rect(screen, GRAY, (500, 430, 10, 400), 0)
+    pygame.draw.rect(screen, GRAY, (500, 830, 550, 10), 0)
 
     #Draw all buttons
     for b in buttons:

@@ -4,12 +4,9 @@ import math
 msgHeader = "[AGENT]: "
 
 class Agent():
-    def __init__(self, ID, agentType="robot", vehicleType="car", strategyFile=None):
+    def __init__(self, ID, agentType="Regular", vehicleType="car", strategyFile=None):
         self.ID = str(ID)
-        if agentType == "human":
-            self.cone_of_vision = 120
-        else:
-            self.cone_of_vision = 360
+        self.visMode = agentType
 
         if vehicleType.lower() == "car":
             self.vehicle = vehicle.Car(self)
@@ -24,7 +21,8 @@ class Agent():
             self.vehicle = vehicle.Car(self)
 
         self.worldKnowledge = {'waypoints': [],
-                               'obstacles': []}
+                               'obstacles': [],
+                               'map_params': []}
         self.strategy = None
         if strategyFile is not None:
             try:

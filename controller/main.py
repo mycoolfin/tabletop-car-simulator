@@ -6,7 +6,7 @@ from controller.zenwheels.cars import *
 from controller.zenwheels.comms import CarCommunicator
 
 
-def main(map_image_path, map_info_path, car_parameters):
+def main(map_image_path, map_info_path, car_parameters, map_parameters):
     print("")
     print("========================================")
     print("         TABLETOP CAR SIMULATOR         ")
@@ -39,7 +39,7 @@ def main(map_image_path, map_info_path, car_parameters):
     f = open(map_info_path,'rb')
     waypoints = eval(f.read())
 	
-    world = World(agents, vehicles, waypoints)
+    world = World(agents, vehicles, waypoints, map_parameters)
 
     # Initialise car communicator.
     comms = CarCommunicator(vehicles)
