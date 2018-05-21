@@ -26,6 +26,7 @@ class Vehicle:
         self.left_signal_active = False
         self.right_signal_active = False
         self.noneTicks = 0  # Used to remember how many times we have recieved no information
+        self.storage = [0,0,0,0,0,0,0,0,0,0]    #Room for random variable storage
 
         # List of commands to be sent to the corresponding ZenWheels car.
         self.command_queue = {}
@@ -34,12 +35,14 @@ class Vehicle:
         if speed >= 0: # Forwards.
             if speed > 63: # Maximum.
                 speed = 63
+            self.current_speed = speed
             self.queueCommand(bytes([THROTTLE, speed]))
         else: # Backwards.
             if speed < -64: # Maximum.
                 speed = 64
             else:
                 speed = 128 + speed
+            self.current_speed = speed
             self.queueCommand(bytes([THROTTLE, speed]))
 
     def set_angle(self, angle):
@@ -53,6 +56,19 @@ class Vehicle:
             else:
                 angle = 128 + angle
             self.queueCommand(bytes([STEERING, angle]))
+
+    def aim_speed(self, speed):
+        cspeed = self.current_speed
+        if (speed > cspeed):
+            diff = speed - cspeed
+            if (diff < self.max_acceleration):
+                diff = self.max_acceleration
+            self.set_speed(cspeed + diff)
+        else:
+            diff = cspeed - speed
+            if (diff < self.max_deceleration):
+                diff = self.max_deceleration
+            self.set_speed(cspeed - diff)
 
     #Return Distance and Angle to current waypoint. Angle must be degrees clockwise from north
     def get_vector_to_waypoint(self):
@@ -105,6 +121,9 @@ class Vehicle:
 
     def get_orientation(self):
         return self.orientation
+
+    def get_speed(self):
+        return self.current_speed
 	
     def stop(self):
         self.queueCommand(bytes([THROTTLE, 0]))
@@ -157,22 +176,30 @@ class Car(Vehicle):
         Vehicle.__init__(self, owner)
         self.max_speed = 50
         self.dimensions = (35,60)
+        self.max_acceleration = 1
+        self.max_deceleration = 1
 
 class Truck(Vehicle):
     def __init__(self, owner):
         Vehicle.__init__(self, owner)
         self.max_speed = 40
         self.dimensions = (40,90)
+        self.max_acceleration = 1
+        self.max_deceleration = 1
 
 class Motorcycle(Vehicle):
     def __init__(self, owner):
         Vehicle.__init__(self, owner)
         self.max_speed = 60
         self.dimensions = (15,30)
+        self.max_acceleration = 1
+        self.max_deceleration = 1
 
 class Bicycle(Vehicle):
     def __init__(self, owner):
         Vehicle.__init__(self, owner)
         self.max_speed = 20
         self.dimensions = (8,25)
+        self.max_acceleration = 1
+        self.max_deceleration = 1
 
