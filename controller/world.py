@@ -3,7 +3,7 @@ msgHeader = "[WORLD]: "
 
 class World():
     def __init__(self, agents, vehicles, waypoints, map_params):
-        #map_params -> [carType,wetRoad,wind,fog,night,GPSnoise] all 0 or 1
+        #map_params -> [wetRoad,wind,fog,night,GPSnoise] all 0 or 1
         self.worldData = {'agents': agents, 'vehicles': vehicles, 'waypoints': waypoints, 'map_params': map_params}
         print(msgHeader + "Initialisation complete.")
 

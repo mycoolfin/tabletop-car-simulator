@@ -1,5 +1,5 @@
 import controller.vehicle as vehicle
-import math
+import random
 
 msgHeader = "[AGENT]: "
 
@@ -40,11 +40,24 @@ class Agent():
                 self.worldKnowledge[key] = worldData[key]
 
     def make_decision(self):
-        if self.strategy is not None:
-            # TODO: Should probably find a more secure way to run custom agent scripts.
-            exec(self.strategy)
+        if (self.vehicle.spinOut > 0):
+            self.vehicle.set_speed(30);
+            self.vehicle.set_angle(40);
+            self.vehicle.spinOut -= 1
         else:
-            self.default_strategy()
+            #If Wet Road
+            if (self.worldKnowledge['map_params'][0]):
+                #And traveling over 30
+                if (self.vehicle.current_speed is not None):
+                    if (self.vehicle.current_speed > 10):
+                        if (random.randint(0,100) > 80):
+                            print("SPIN OUT")
+                            self.vehicle.spinOut = 3
+            if self.strategy is not None:
+                # TODO: Should probably find a more secure way to run custom agent scripts.
+                exec(self.strategy)
+            else:
+                self.default_strategy()
 
     def default_strategy(self):
         pass

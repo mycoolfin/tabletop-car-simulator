@@ -26,26 +26,28 @@ class Vehicle:
         self.left_signal_active = False
         self.right_signal_active = False
         self.noneTicks = 0  # Used to remember how many times we have recieved no information
+        self.spinOut = 0 # Time remaining before spinout finishes
         self.storage = [0,0,0,0,0,0,0,0,0,0]    #Room for random variable storage
 
         # List of commands to be sent to the corresponding ZenWheels car.
         self.command_queue = {}
 
     def set_speed(self, speed):
+        self.current_speed = speed
+        speed = math.floor(speed)
         if speed >= 0: # Forwards.
             if speed > 63: # Maximum.
                 speed = 63
-            self.current_speed = speed
             self.queueCommand(bytes([THROTTLE, speed]))
         else: # Backwards.
             if speed < -64: # Maximum.
                 speed = 64
             else:
                 speed = 128 + speed
-            self.current_speed = speed
             self.queueCommand(bytes([THROTTLE, speed]))
 
     def set_angle(self, angle):
+        self.current_angle = angle
         if angle >= 0: # Steering right.
             if angle > 63: # Maximum.
                 angle = 63
@@ -59,16 +61,36 @@ class Vehicle:
 
     def aim_speed(self, speed):
         cspeed = self.current_speed
+        if (cspeed is None):
+            cspeed = 0
         if (speed > cspeed):
             diff = speed - cspeed
-            if (diff < self.max_acceleration):
+            if (diff > self.max_acceleration):
                 diff = self.max_acceleration
             self.set_speed(cspeed + diff)
         else:
             diff = cspeed - speed
-            if (diff < self.max_deceleration):
+            if (diff > self.max_deceleration):
                 diff = self.max_deceleration
             self.set_speed(cspeed - diff)
+
+    def aim_angle(self, angle):
+        cangle = self.orientation
+        if (cangle is None):
+            cangle = 0
+        diff = int(math.fabs(angle - cangle))
+        if (diff > 180):
+            diff = 360 - diff
+            if (cangle < angle):
+                da = -diff
+            else:
+                da = diff
+        else:
+            if (cangle < angle):
+                da = diff
+            else:
+                da = -diff
+        self.set_angle(da)
 
     #Return Distance and Angle to current waypoint. Angle must be degrees clockwise from north
     def get_vector_to_waypoint(self):
@@ -176,7 +198,7 @@ class Car(Vehicle):
         Vehicle.__init__(self, owner)
         self.max_speed = 50
         self.dimensions = (35,60)
-        self.max_acceleration = 1
+        self.max_acceleration = 2
         self.max_deceleration = 1
 
 class Truck(Vehicle):
@@ -184,16 +206,16 @@ class Truck(Vehicle):
         Vehicle.__init__(self, owner)
         self.max_speed = 40
         self.dimensions = (40,90)
-        self.max_acceleration = 1
-        self.max_deceleration = 1
+        self.max_acceleration = 0.5
+        self.max_deceleration = 0.25
 
 class Motorcycle(Vehicle):
     def __init__(self, owner):
         Vehicle.__init__(self, owner)
         self.max_speed = 60
         self.dimensions = (15,30)
-        self.max_acceleration = 1
-        self.max_deceleration = 1
+        self.max_acceleration = 3
+        self.max_deceleration = 2
 
 class Bicycle(Vehicle):
     def __init__(self, owner):
