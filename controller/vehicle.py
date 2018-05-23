@@ -1,4 +1,5 @@
 import time
+import math
 
 from controller.zenwheels.protocol import *
 
@@ -26,6 +27,12 @@ class Vehicle:
 
         # List of commands to be sent to the corresponding ZenWheels car.
         self.command_queue = {}
+
+    def get_orientation(self):
+        return self.orientation
+
+    def get_speed(self):
+        return self.current_speed
 
     def set_speed(self, speed):
         if speed >= 0: # Forwards.
@@ -102,22 +109,29 @@ class Car(Vehicle):
         Vehicle.__init__(self, owner)
         self.max_speed = 50
         self.dimensions = (35,60)
+        self.max_acceleration = 2
+        self.max_deceleration = 1
 
 class Truck(Vehicle):
     def __init__(self, owner):
         Vehicle.__init__(self, owner)
         self.max_speed = 40
         self.dimensions = (40,90)
+        self.max_acceleration = 0.5
+        self.max_deceleration = 0.25
 
 class Motorcycle(Vehicle):
     def __init__(self, owner):
         Vehicle.__init__(self, owner)
         self.max_speed = 60
         self.dimensions = (15,30)
+        self.max_acceleration = 3
+        self.max_deceleration = 2
 
 class Bicycle(Vehicle):
     def __init__(self, owner):
         Vehicle.__init__(self, owner)
         self.max_speed = 20
         self.dimensions = (8,25)
-
+        self.max_acceleration = 1
+        self.max_deceleration = 1

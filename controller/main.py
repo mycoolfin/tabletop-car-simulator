@@ -8,7 +8,7 @@ import time
 
 msgHeader = "[MAIN]: "
 
-def main(map_image_path, map_info_path, car_parameters):
+def main(map_image_path, map_info_path, car_parameters, map_parameters):
     print("")
     print("========================================")
     print("         TABLETOP CAR SIMULATOR         ")
@@ -52,7 +52,9 @@ def main(map_image_path, map_info_path, car_parameters):
         exit()
 
     # Initialise world.
-    world = World(agents, vehicles)
+    f = open(map_info_path,'rb')
+    waypoints = eval(f.read())
+    world = World(agents, vehicles, waypoints, map_parameters)
 
     # Display the car loading screen.
     display.connectingToCarsScreen()
