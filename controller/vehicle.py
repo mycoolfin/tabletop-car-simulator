@@ -28,23 +28,35 @@ class Vehicle:
         # List of commands to be sent to the corresponding ZenWheels car.
         self.command_queue = {}
 
+    def get_position(self):
+        return self.position
+
     def get_orientation(self):
         return self.orientation
 
     def get_speed(self):
         return self.current_speed
 
+    def update_speed(self, speed):
+        self.current_speed = speed
+
     def set_speed(self, speed):
+        print(speed)
+        self.current_speed = speed
         if speed >= 0: # Forwards.
             if speed > 63: # Maximum.
                 speed = 63
-            self.queueCommand(bytes([THROTTLE, speed]))
+            if speed < 4:
+                speed = 4
+            self.queueCommand(bytes([THROTTLE, math.floor(speed)]))
         else: # Backwards.
             if speed < -64: # Maximum.
                 speed = 64
             else:
+                if speed > -4:
+                    speed = -4
                 speed = 128 + speed
-            self.queueCommand(bytes([THROTTLE, speed]))
+            self.queueCommand(bytes([THROTTLE, math.floor(speed)]))
 
     def set_angle(self, angle):
         if angle >= 0: # Steering right.

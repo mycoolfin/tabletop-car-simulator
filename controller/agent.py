@@ -22,6 +22,7 @@ class Agent():
 
         self.worldKnowledge = {'waypoints': [],
                                'waypoint_index': None,
+                               'last_location': [None, None],
                                'obstacles': [],
                                'map_params': []}
         self.strategy = None
@@ -46,12 +47,13 @@ class Agent():
             exec(self.strategy)
         else:
             self.default_strategy()
+        self.worldKnowledge['last_location'] = self.vehicle.get_position()
 
     def default_strategy(self):
         pass
 
     def aim_speed(self, speed):
-        cspeed = self.vehicle.current_speed
+        cspeed = self.vehicle.get_speed()
         if (cspeed is None):
             cspeed = 0
         if (speed > cspeed):
@@ -116,6 +118,10 @@ class Agent():
                         theta = theta + 270
                     elif (dx < 0 and dy < 0):
                         theta = theta + 270
+
+                    theta += 270
+                    if (theta >= 360):
+                        theta -= 360
 
                     return (dist,theta)
         return (None,None)
