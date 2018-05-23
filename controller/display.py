@@ -1,12 +1,19 @@
 import pygame
 from pygame.locals import *
+import os
+import math
 
 msgHeader = "[DISPLAY]: "
 
 DISPLAY_WIDTH = 1600
 DISPLAY_HEIGHT = 1200
 
-DEFAULT_MAP_PATH = "./resources/maps/autocars_default/map_default.png"
+CALIBRATION_IMG_PATH = os.path.join(os.path.dirname(__file__), '..',
+                                    'resources', 'media', 'calibration', 'checkerboard.png')
+
+DEFAULT_MAP_PATH = os.path.join(os.path.dirname(__file__), '..',
+                                    'resources', 'maps', 'autocars_default', 'map_default.png')
+
 
 class Display():
     def __init__(self, map_image_path=None):
@@ -14,9 +21,10 @@ class Display():
         if map_image_path:
             self.background_image_path = map_image_path
         pygame.init()
-        self.screen = pygame.display.set_mode((DISPLAY_WIDTH, DISPLAY_HEIGHT), pygame.FULLSCREEN)
-        self.background_image = self.loadBackground()
+        self.screen = pygame.display.set_mode((DISPLAY_WIDTH, DISPLAY_HEIGHT), pygame.RESIZABLE)
         self.font = pygame.font.SysFont('Arial', 30)
+        self.background_image = self.loadBackground()
+        self.calibration_img = self.loadCalibrationImage()
         print(msgHeader + "Initialisation complete.")
 
     # Load and scale background image.
@@ -30,34 +38,75 @@ class Display():
             print(msgHeader + "Could not load map image from path " + self.background_image_path + ". (Fatal)")
             exit()
 
+    # Load and scale calibration image.
+    def loadCalibrationImage(self):
+        raw_img = pygame.image.load(CALIBRATION_IMG_PATH)
+        scale_factor = DISPLAY_WIDTH / raw_img.get_rect().size[0]
+        return pygame.transform.rotozoom(raw_img, 0, scale_factor)
+
     # Create image from raw world data.
     def createImage(self, worldData):
         self.screen.blit(self.background_image, (0,0))
         yOffset = 0
         for vehicle in worldData['vehicles']:
             try:
-                scaler = 1.333333333
-                pos = (int(vehicle.position[0]*scaler), DISPLAY_HEIGHT - int((vehicle.position[1]*scaler)))
+                pos = vehicle.position
                 angle = vehicle.orientation
-                #width, length = vehicle.dimensions
-                #template = pygame.Surface((width,length))
-                #template.fill((255,255,255))
-                #template.set_colorkey((255,0,0))
-                #img = pygame.transform.rotate(template, angle)
-                #img_rect = img.get_rect(center=pos)
-                #self.screen.blit(img, img_rect)
-                text = self.font.render("Agent " + str(vehicle.owner.ID) + ": " + str(pos) + ", " + str(angle), True, (255,255,255))
+                pygame.draw.circle(self.screen, (0,0,0), pos, 50, 1)
+                angleLine = (pos[0] + 200*math.cos(math.radians(angle)), pos[1] +  200*math.sin(math.radians(angle)))
+                pygame.draw.line(self.screen, (0, 0, 0), pos, angleLine, 5)
+                text = self.font.render("Agent " + str(vehicle.owner.ID) + ": " + str(pos) + ", " + str(angle), True, (0,0,0))
                 self.screen.blit(text, (50, yOffset))
                 yOffset += 30
-                marker = self.font.render(str(vehicle.owner.ID), True, (255,255,255))
+                marker = self.font.render(str(vehicle.owner.ID), True, (0,0,0))
                 self.screen.blit(marker, pos)
             except Exception as e:
                 pass
 
-    def loadingScreen(self):
+    def connectingToTrackerScreen(self):
+        self.screen.fill((255,255,255))
+        text = self.font.render("Connecting to the tracker...", True, (0,0,0))
+        self.screen.blit(text, (DISPLAY_WIDTH-500,DISPLAY_HEIGHT-200))
+        pygame.display.flip()
+
+    def calibrationScreen(self, corners=None):
+        self.screen.blit(self.calibration_img, (0, 0))
+        if corners is not None:
+            tl = corners[0]
+            tr = corners[1]
+            bl = corners[2]
+            br = corners[3]
+            pygame.draw.line(self.screen, (0, 255, 0), tl, tr, 5)
+            pygame.draw.line(self.screen, (0, 255, 0), tl, bl, 5)
+            pygame.draw.line(self.screen, (0, 255, 0), bl, br, 5)
+            pygame.draw.line(self.screen, (0, 255, 0), br, tr, 5)
+            text = self.font.render("Calibrated successfully.", True, (0, 0, 0))
+        else:
+            text = self.font.render("Calibrating camera perspective...", True, (0, 0, 0))
+        self.screen.blit(text, (DISPLAY_WIDTH-500,DISPLAY_HEIGHT-200))
+        pygame.display.flip()
+
+    def connectingToCarsScreen(self):
         self.screen.fill((255,255,255))
         text = self.font.render("Connecting to cars...", True, (0,0,0))
-        self.screen.blit(text, (DISPLAY_WIDTH-300,DISPLAY_HEIGHT-300))
+        self.screen.blit(text, (DISPLAY_WIDTH-500,DISPLAY_HEIGHT-200))
+        pygame.display.flip()
+
+    def identifyingCarsScreen(self, agents):
+        self.screen.fill((255,255,255))
+        cellWidth = 100
+        cellHeight = 200
+        xOffset = int(DISPLAY_WIDTH/4)
+        top = DISPLAY_HEIGHT-300
+        for agent in agents:
+            pygame.draw.rect(self.screen, (0,0,0),
+                             Rect(xOffset,top,cellWidth,cellHeight), 4)
+            id = self.font.render(str(agent.ID), True, (0,0,0))
+            self.screen.blit(id, (int(cellWidth/2) + xOffset, top - 50))
+            xOffset += cellWidth + 50
+
+        text = self.font.render("Place each car in its cell.", True, (0,0,0))
+        self.screen.blit(text, (DISPLAY_WIDTH-500,DISPLAY_HEIGHT-200))
         pygame.display.flip()
 
     def handle_input(self):

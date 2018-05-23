@@ -4,6 +4,10 @@ from os.path import isfile
 
 import controller.main as cont
 
+#Resolution
+DISPLAY_WIDTH = 1600
+DISPLAY_HEIGHT = 1200
+
 #Defining my colours
 BLACK = (0,0,0)
 WHITE = (255,255,255)
@@ -275,8 +279,8 @@ def init_labels():
 #Initialise pygame module
 pygame.init()
 #Initialise screen with chosen size
-size = [1600, 1200]
-screen = pygame.display.set_mode(size, pygame.FULLSCREEN)
+size = [DISPLAY_WIDTH, DISPLAY_HEIGHT]
+screen = pygame.display.set_mode(size, pygame.RESIZABLE)
 #Give my game window a title
 pygame.display.set_caption("Title Screen")
 #Install sexy background (same as screen size)

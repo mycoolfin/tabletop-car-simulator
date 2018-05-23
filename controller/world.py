@@ -1,3 +1,5 @@
+import copy
+
 
 msgHeader = "[WORLD]: "
 
@@ -11,7 +13,9 @@ class World():
         for known_vehicle in self.worldData['vehicles']:
             updated = False
             for observed_car in car_locations:
-                if observed_car['ID'] == known_vehicle.owner.ID:
+                # Translate tracker ID to real ID.
+                real_ID = self.worldData['agents'][observed_car['ID']].ID
+                if  real_ID == known_vehicle.owner.ID:
                     known_vehicle.position = observed_car['position']
                     known_vehicle.orientation = observed_car['orientation']
                     updated = True
@@ -21,4 +25,4 @@ class World():
                 known_vehicle.orientation = None
 
     def getWorldData(self):
-        return self.worldData
+        return copy.deepcopy(self.worldData)

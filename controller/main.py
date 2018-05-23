@@ -4,7 +4,9 @@ from controller.world import World
 from controller.display import Display
 from controller.zenwheels.cars import *
 from controller.zenwheels.comms import CarCommunicator
+import time
 
+msgHeader = "[MAIN]: "
 
 def main(map_image_path, map_info_path, car_parameters):
     print("")
@@ -13,13 +15,25 @@ def main(map_image_path, map_info_path, car_parameters):
     print("========================================")
     print("")
 
-    # Initialise vision server.
-    vision = Vision()
+    print(msgHeader + "Begin initialisation.")
 
     # Initialise display.
     display = Display(map_image_path=map_image_path)
-    # Display loading screen.
-    display.loadingScreen()
+
+    # Initialise vision server.
+    display.connectingToTrackerScreen()
+    vision = Vision()
+
+    while True:
+        # Check that the tracker is calibrated.
+        corners = vision.confirm_calibrated()
+        # Display the calibration screen.
+        if corners is None:
+            display.calibrationScreen()
+        else:
+            display.calibrationScreen(corners=corners)
+            time.sleep(3)
+            break
 
     # Initialise agents and their vehicles.
     agents = []
@@ -33,13 +47,34 @@ def main(map_image_path, map_info_path, car_parameters):
         agents.append(agent)
         vehicles.append(agent.vehicle)
 
+    if not agents:
+        print(msgHeader + "No cars enabled. Exiting...")
+        exit()
+
     # Initialise world.
     world = World(agents, vehicles)
+
+    # Display the car loading screen.
+    display.connectingToCarsScreen()
 
     # Initialise car communicator.
     comms = CarCommunicator(vehicles)
 
+    while True:
+        # Display the identifying cars screen.
+        display.identifyingCarsScreen(world.getWorldData()['agents'])
+        numCarsFound = vision.confirm_identified()
+        if numCarsFound is None:
+            continue
+        elif numCarsFound != len(agents):
+            print(msgHeader + "Number of cars found (" + str(numCarsFound)
+                  + ") does not match the number of cars enabled (" + str(len(agents)) + "). Exiting...")
+            exit()
+        else:
+            break
+
     # Event loop.
+    print(msgHeader + "Entering main loop.")
     while True:
         car_locations = vision.locateCars()
         world.update(car_locations)
@@ -47,3 +82,4 @@ def main(map_image_path, map_info_path, car_parameters):
         for agent in agents:
             agent.update_world_knowledge(world.getWorldData())
             agent.make_decision()
+
