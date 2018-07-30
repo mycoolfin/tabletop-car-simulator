@@ -4,6 +4,7 @@ from os.path import isfile
 
 import controller.main as cont
 
+
 #Defining my colours
 BLACK = (0,0,0)
 GRAY = (100,100,100)
@@ -21,6 +22,7 @@ STRATEGIES_FOLDER = "./resources/strategies/"
 
 #Load all available maps
 #Currently does not support usb
+
 currentMap = 0
 map_paths = []
 map_info_paths = []
@@ -32,10 +34,13 @@ for folder in listdir(MAP_FOLDER):
             if ((file[-4:] == ".txt") and (file[:3] == "map")):
                 map_info_paths.append(MAP_FOLDER + folder + "/" + file)
 
+
 strategy_paths = []
 for file in listdir(STRATEGIES_FOLDER):
     if ((file[-3:] == ".py") and (file[:5] == "strat")):
         strategy_paths.append(STRATEGIES_FOLDER + file)
+		
+
 
 #Initialise output constructs
 currentCar = 0
@@ -58,7 +63,7 @@ map_data = [0,0,0,0,0]
 class Label:
     def __init__(self,x,y,text):
         self.text = text
-        self.font_size = 28
+        self.font_size = 23
         self.font = pygame.font.SysFont("comicsansms", self.font_size)
         self.font.set_bold(1)
         self.color = WHITE
@@ -219,7 +224,7 @@ def onClick_launch_button(button):
     
 def init_buttons():
     #Map image button
-    t = Button(20,20,450,300)
+    t = Button(20,20,300,200)
     t.id = "map_image_button"
     t.img = MAP_FOLDER + "autocars_map_basic/map_basic.png"
     t.next = [-1,7,1,-1]
@@ -227,14 +232,14 @@ def init_buttons():
     t.hover = 1
 
     #Car image button
-    t = Button(20,450,450,300)
+    t = Button(20,340,300,200)
     t.id = "car_image_button"
     t.img = car_paths[0]
     t.next = [0,11,2,-1]
     t.onClick = onClick_car_image_button
 
     #Car enabled button
-    t = Button(350,770,120,50)
+    t = Button(20,550,110,40)
     t.id = "car_enabled_button"
     t.next = [1,11,3,-1]
     t.onClick = onClick_car_enabled_button
@@ -242,7 +247,7 @@ def init_buttons():
     t.text = "Disabled"
 
     #Strategy text button
-    t = Button(200,860,800,60)
+    t = Button(200,600,800,50)
     t.id = "strategy_text_button"
     t.next = [2,6,4,-1]
     t.onClick = onClick_strategy_text_button
@@ -250,7 +255,7 @@ def init_buttons():
     t.font = pygame.font.SysFont("comicsansms", 40)
 
     #Agent type text button
-    t = Button(200,960,800,60)
+    t = Button(200,655,800,50)
     t.id = "agent_type_button"
     t.next = [3,6,5,-1]
     t.onClick = onClick_vision_text_button
@@ -258,7 +263,7 @@ def init_buttons():
     t.font = pygame.font.SysFont("comicsansms", 40)
 
     #Car type text button
-    t = Button(200,1060,800,60)
+    t = Button(200,710,800,50)
     t.id = "car_type_button"
     t.next = [4,6,-1,-1]
     t.onClick = onClick_cartype_text_button
@@ -266,16 +271,16 @@ def init_buttons():
     t.font = pygame.font.SysFont("comicsansms", 40)
 
     #Launch button
-    t = Button(1150,500,300,200)
+    t = Button(850,100,150,290)
     t.id = "launch_button"
     t.next = [-1,-1,3,11]
     t.onClick = onClick_launch_button
     t.colors = [DARKGREEN,RED,BLACK,CYAN]
-    t.text = "Launch"
-    t.font = pygame.font.SysFont("comicsansms", 80)
+    t.text = "   Go!"
+    t.font = pygame.font.SysFont("comicsansms", 60)
 
     # Wet Road button
-    t = Button(650, 100, 300, 80)
+    t = Button(500, 100, 250, 50)
     t.id = "wet_road_button"
     t.next = [-1, 6, 8, 0]
     t.onClick = onClick_wet_road_button
@@ -283,7 +288,7 @@ def init_buttons():
     t.text = "Wet Road"
 
     # Wind button
-    t = Button(650, 200, 300, 80)
+    t = Button(500, 160, 250, 50)
     t.id = "wind_button"
     t.next = [7, 6, 9, 0]
     t.onClick = onClick_wind_button
@@ -291,7 +296,7 @@ def init_buttons():
     t.text = "Wind"
 
     # Fog button
-    t = Button(650, 300, 300, 80)
+    t = Button(500, 220, 250, 50)
     t.id = "fog_button"
     t.next = [8, 6, 10, 1]
     t.onClick = onClick_fog_button
@@ -299,7 +304,7 @@ def init_buttons():
     t.text = "Fog"
 
     # Night button
-    t = Button(650, 400, 300, 80)
+    t = Button(500, 280, 250, 50)
     t.id = "night_button"
     t.next = [9, 6, 11, 1]
     t.onClick = onClick_night_button
@@ -307,7 +312,7 @@ def init_buttons():
     t.text = "Night Time"
 
     # Perfect GPS button
-    t = Button(650, 500, 300, 80)
+    t = Button(500, 340, 250, 50)
     t.id = "perfGPS_button"
     t.next = [10, 6, 3, 1]
     t.onClick = onClick_perfGPS_button
@@ -316,25 +321,20 @@ def init_buttons():
 
 def init_labels():
     #Map file label
-    t = Label(20,350,"Default")
+    t = Label(20,250,"Default")
     #Map data file label
-    t = Label(20,380,"Default")
+    t = Label(20,280,"Default")
     #Car ID label
-    t = Label(20,780,"Default")
+    t = Label(200,550,"Default")
     #Strategy file label
-    t = Label(20,872,"Strategy:")
+    t = Label(20,600,"Strategy:")
     t.font = pygame.font.SysFont("comicsansms", 40)
     #Vision mode label
-    t = Label(20,972,"Vision Mode:")
+    t = Label(20,655,"Vision Mode:")
     t.font = pygame.font.SysFont("comicsansms", 40)
     #Car type label
-    t = Label(20,1072,"Vehicle:")
+    t = Label(20,710,"Vehicle:")
     t.font = pygame.font.SysFont("comicsansms", 40)
-
-
-
-
-
 
 
 
@@ -347,11 +347,11 @@ def init_labels():
 #Initialise pygame module
 pygame.init()
 #Initialise screen with chosen size
-size = [1600, 1200]
-screen = pygame.display.set_mode(size, pygame.FULLSCREEN)
+print("CHECKPOINT")
+screen = pygame.display.set_mode()
+print("CHECKPOINT")
 #Give my game window a title
 pygame.display.set_caption("Title Screen")
-
 
 #Initialise pygame clock
 clock = pygame.time.Clock()
@@ -413,10 +413,9 @@ while (done == 0):
     #Wash with clean background
     screen.fill(pygame.Color("black"))
     #Draw UI Divisions
-    pygame.draw.rect(screen, GRAY, (1050, 0, 10, 1200), 0)
-    pygame.draw.rect(screen, GRAY, (0, 430, 500, 10), 0)
-    pygame.draw.rect(screen, GRAY, (500, 430, 10, 400), 0)
-    pygame.draw.rect(screen, GRAY, (500, 830, 550, 10), 0)
+    pygame.draw.rect(screen, GRAY, (0, 320, 480, 10), 0)
+    pygame.draw.rect(screen, GRAY, (480, 320, 10, 210), 0)
+    pygame.draw.rect(screen, GRAY, (480, 530, 1000, 10), 0)
 
     #Draw all buttons
     for b in buttons:
