@@ -347,9 +347,7 @@ def init_labels():
 #Initialise pygame module
 pygame.init()
 #Initialise screen with chosen size
-print("CHECKPOINT")
 screen = pygame.display.set_mode()
-print("CHECKPOINT")
 #Give my game window a title
 pygame.display.set_caption("Title Screen")
 

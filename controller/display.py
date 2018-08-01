@@ -14,7 +14,9 @@ class Display():
         if map_image_path:
             self.background_image_path = map_image_path
         pygame.init()
+        print("Checkpoint")
         self.screen = pygame.display.set_mode((DISPLAY_WIDTH, DISPLAY_HEIGHT), pygame.FULLSCREEN)
+        print("Checkpoint")
         self.background_image = self.loadBackground()
         self.font = pygame.font.SysFont('Arial', 30)
         print(msgHeader + "Initialisation complete.")

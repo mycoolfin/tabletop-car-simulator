@@ -34,7 +34,7 @@ class Vision():
                 pos = (visionData[mac_address][1], visionData[mac_address][2])
                 angle = visionData[mac_address][5]
                 observed_car = {'ID': agentID, 'position': pos, 'orientation': angle}
-                car_locations.append(observed_car)				
+                car_locations.append(observed_car)
         return car_locations
 
 class Server():
