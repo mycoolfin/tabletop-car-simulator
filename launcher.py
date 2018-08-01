@@ -347,12 +347,9 @@ def init_labels():
 #Initialise pygame module
 pygame.init()
 #Initialise screen with chosen size
-<<<<<<< HEAD
 screen = pygame.display.set_mode()
-=======
 size = [1600, 1200]
 screen = pygame.display.set_mode(size, pygame.FULLSCREEN)
->>>>>>> parent of 422336e... Resized Launcher to allow for native resolution
 #Give my game window a title
 pygame.display.set_caption("Title Screen")
 
