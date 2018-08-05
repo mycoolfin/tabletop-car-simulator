@@ -4,7 +4,9 @@ from controller.world import World
 from controller.display import Display
 from controller.zenwheels.cars import *
 from controller.zenwheels.comms import CarCommunicator
+import time
 
+msgHeader = "[MAIN]: "
 
 def main(map_image_path, map_info_path, car_parameters, map_parameters):
     print("")
@@ -13,13 +15,14 @@ def main(map_image_path, map_info_path, car_parameters, map_parameters):
     print("========================================")
     print("")
 
-    # Initialise vision server.
-    vision = Vision()
+    print(msgHeader + "Begin initialisation.")
 
     # Initialise display.
     display = Display(map_image_path=map_image_path)
-    # Display loading screen.
-    display.loadingScreen()
+
+    # Initialise vision server.
+    display.connectingToTrackerScreen()
+    vision = Vision()
 
     # Initialise agents and their vehicles.
     agents = []
@@ -33,23 +36,28 @@ def main(map_image_path, map_info_path, car_parameters, map_parameters):
         agents.append(agent)
         vehicles.append(agent.vehicle)
 
+    if not agents:
+        print(msgHeader + "No cars enabled. Exiting...")
+        exit()
+
     # Initialise world.
-    # Extract waypoints from map info file.
-    waypoints = []
     f = open(map_info_path,'rb')
     waypoints = eval(f.read())
-	
     world = World(agents, vehicles, waypoints, map_parameters)
+
+    # Display the car loading screen.
+    display.connectingToCarsScreen()
 
     # Initialise car communicator.
     comms = CarCommunicator(vehicles)
 
     # Event loop.
+    print(msgHeader + "Entering main loop.")
     while True:
         car_locations = vision.locateCars()
         world.update(car_locations)
         display.update(world.getWorldData())
-        
         for agent in agents:
             agent.update_world_knowledge(world.getWorldData())
             agent.make_decision()
+

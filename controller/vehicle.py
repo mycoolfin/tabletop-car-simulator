@@ -8,7 +8,6 @@ class Vehicle:
     def __init__(self, owner):
         # Vehicle properties.
         self.owner = owner
-        self.waypoint_index = None	# Keeps track of waypoint progression.
         self.position = None, None  # World coordinates (x, y).
         self.orientation = None  # Degrees clockwise from north.
         self.dimensions = None, None  # Size and shape (width, length).
@@ -25,16 +24,17 @@ class Vehicle:
         self.headlights_active = False
         self.left_signal_active = False
         self.right_signal_active = False
-        self.noneTicks = 0  # Used to remember how many times we have recieved no information
-        self.spinOut = 0 # Time remaining before spinout finishes
-        self.storage = [0,0,0,0,0,0,0,0,0,0]    #Room for random variable storage
 
         # List of commands to be sent to the corresponding ZenWheels car.
         self.command_queue = {}
 
+    def get_orientation(self):
+        return self.orientation
+
+    def get_speed(self):
+        return self.current_speed
+
     def set_speed(self, speed):
-        self.current_speed = speed
-        speed = math.floor(speed)
         if speed >= 0: # Forwards.
             if speed > 63: # Maximum.
                 speed = 63
@@ -47,7 +47,6 @@ class Vehicle:
             self.queueCommand(bytes([THROTTLE, speed]))
 
     def set_angle(self, angle):
-        self.current_angle = angle
         if angle >= 0: # Steering right.
             if angle > 63: # Maximum.
                 angle = 63
@@ -59,94 +58,6 @@ class Vehicle:
                 angle = 128 + angle
             self.queueCommand(bytes([STEERING, angle]))
 
-    def aim_speed(self, speed):
-        cspeed = self.current_speed
-        if (cspeed is None):
-            cspeed = 0
-        if (speed > cspeed):
-            diff = speed - cspeed
-            if (diff > self.max_acceleration):
-                diff = self.max_acceleration
-            self.set_speed(cspeed + diff)
-        else:
-            diff = cspeed - speed
-            if (diff > self.max_deceleration):
-                diff = self.max_deceleration
-            self.set_speed(cspeed - diff)
-
-    def aim_angle(self, angle):
-        cangle = self.orientation
-        if (cangle is None):
-            cangle = 0
-        diff = int(math.fabs(angle - cangle))
-        if (diff > 180):
-            diff = 360 - diff
-            if (cangle < angle):
-                da = -diff
-            else:
-                da = diff
-        else:
-            if (cangle < angle):
-                da = diff
-            else:
-                da = -diff
-        self.set_angle(da)
-
-    #Return Distance and Angle to current waypoint. Angle must be degrees clockwise from north
-    def get_vector_to_waypoint(self):
-        if (self.position[0] != None and self.position[1] != None):
-             if (self.waypoint_index != None):
-                if (self.owner.worldKnowledge['waypoints'] != []):
-                    x1 = self.position[0]
-                    y1 = self.position[1]
-                    x2 = self.owner.worldKnowledge['waypoints'][self.waypoint_index][0]
-                    y2 = self.owner.worldKnowledge['waypoints'][self.waypoint_index][1]
-                    dx = x2 - x1
-                    dy = y2 - y1
-                    dist = int(math.sqrt(dx*dx + dy*dy))
-
-                    theta = math.atan(dy/dx)*(180/math.pi)
-                    if (dx == 0):
-                        if (dy <= 0):
-                            theta = 0
-                        else:
-                            theta = 180
-                    elif (dy == 0):
-                        if (dx < 0):
-                            theta = 90
-                        else:
-                            theta = 270
-                    elif (dx > 0 and dy > 0):
-                        theta = theta + 90
-                    elif (dx > 0 and dy < 0):
-                        theta = theta + 90
-                    elif (dx < 0 and dy > 0):
-                        theta = theta + 270
-                    elif (dx < 0 and dy < 0):
-                        theta = theta + 270
-
-                    return (dist,theta)
-        return (None,None)
-
-    #Return current waypoint index
-    def get_waypoint_index(self):
-        return self.waypoint_index
-
-    #Set current waypoint index
-    def set_waypoint_index(self, wp):
-        mmax = len(self.owner.worldKnowledge['waypoints']) - 1
-        if (wp > mmax):
-            wp = mmax
-        if (wp < 0):
-            wp = 0
-        self.waypoint_index = wp
-
-    def get_orientation(self):
-        return self.orientation
-
-    def get_speed(self):
-        return self.current_speed
-	
     def stop(self):
         self.queueCommand(bytes([THROTTLE, 0]))
 
@@ -224,4 +135,3 @@ class Bicycle(Vehicle):
         self.dimensions = (8,25)
         self.max_acceleration = 1
         self.max_deceleration = 1
-

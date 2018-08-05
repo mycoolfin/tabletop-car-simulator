@@ -1,5 +1,4 @@
 from camera import Camera
-from calibrator import Calibrator
 from cartracker import CarTracker
 from server import Server
 import cv2
@@ -15,31 +14,6 @@ def waitForSignal():
     while not Server.isConnected:
         pass
 
-def calibrate(cam, calibrator):
-    while True:
-        if not Server.isConnected:
-            break
-        frame = cam.get_frame()
-        if frame is None:
-            continue
-        pt, corners = calibrator.get_transform(frame)
-        if pt is not None:
-            CarTracker.perspective_transform = pt
-            Server.calibration = corners
-            break
-
-def identify(cam, tracker):
-    while True:
-        if not Server.isConnected:
-            break
-        frame = cam.get_frame()
-        if frame is None:
-            continue
-        num_cars_found = tracker.lock_on(frame)
-        if num_cars_found is not None:
-            Server.car_identification = num_cars_found
-            break
-
 def track(cam, tracker):
     while True:
         if not Server.isConnected:
@@ -54,15 +28,8 @@ def main():
     while True:
         print("Started listen loop.")
         cam = Camera()
-        calibrator = Calibrator()
         tracker = CarTracker()
         waitForSignal()
-        # Calibrate first.
-        calibrate(cam, calibrator)
-        cv2.destroyAllWindows()
-        # Identify car starting positions.
-        identify(cam, tracker)
-        cv2.destroyAllWindows()
         # Start tracking.
         track(cam, tracker)
         cv2.destroyAllWindows()

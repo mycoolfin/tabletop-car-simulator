@@ -1,9 +1,10 @@
+import copy
+
 
 msgHeader = "[WORLD]: "
 
 class World():
     def __init__(self, agents, vehicles, waypoints, map_params):
-        #map_params -> [wetRoad,wind,fog,night,GPSnoise] all 0 or 1
         self.worldData = {'agents': agents, 'vehicles': vehicles, 'waypoints': waypoints, 'map_params': map_params}
         print(msgHeader + "Initialisation complete.")
 
@@ -12,11 +13,13 @@ class World():
         for known_vehicle in self.worldData['vehicles']:
             updated = False
             for observed_car in car_locations:
-                if observed_car['ID'] == known_vehicle.owner.ID:
+                # Translate tracker ID to real ID.
+                real_ID = self.worldData['agents'][observed_car['ID']].ID
+                if  real_ID == known_vehicle.owner.ID:
                     known_vehicle.position = observed_car['position']
                     known_vehicle.orientation = observed_car['orientation']
                     #If car has no current waypoint, assign it to the nearest one
-                    if (known_vehicle.waypoint_index == None):
+                    if (known_vehicle.owner.worldKnowledge['waypoint_index'] == None):
                         dists = [0] * len(self.worldData['waypoints'])
                         if (self.worldData['waypoints'] != []):
                             closest_wp = 0
@@ -28,7 +31,7 @@ class World():
                                 if (dists[index] < dists[closest_wp]):
                                     closest_wp = index
                                     index += 1
-                            known_vehicle.waypoint_index = closest_wp
+                            known_vehicle.owner.worldKnowledge['waypoint_index'] = closest_wp
                         else:
                             print("No Waypoints Loaded")
                     updated = True
@@ -38,4 +41,4 @@ class World():
                 known_vehicle.orientation = None
 
     def getWorldData(self):
-        return self.worldData
+        return copy.deepcopy(self.worldData)

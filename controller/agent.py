@@ -1,12 +1,12 @@
+import math
+
 import controller.vehicle as vehicle
-import random
 
 msgHeader = "[AGENT]: "
 
 class Agent():
-    def __init__(self, ID, agentType="Regular", vehicleType="car", strategyFile=None):
+    def __init__(self, ID, agentType, vehicleType="car", strategyFile=None):
         self.ID = str(ID)
-        self.visMode = agentType
 
         if vehicleType.lower() == "car":
             self.vehicle = vehicle.Car(self)
@@ -21,6 +21,7 @@ class Agent():
             self.vehicle = vehicle.Car(self)
 
         self.worldKnowledge = {'waypoints': [],
+                               'waypoint_index': None,
                                'obstacles': [],
                                'map_params': []}
         self.strategy = None
@@ -40,24 +41,95 @@ class Agent():
                 self.worldKnowledge[key] = worldData[key]
 
     def make_decision(self):
-        if (self.vehicle.spinOut > 0):
-            self.vehicle.set_speed(30);
-            self.vehicle.set_angle(40);
-            self.vehicle.spinOut -= 1
+        if self.strategy is not None:
+            # TODO: Should probably find a more secure way to run custom agent scripts.
+            exec(self.strategy)
         else:
-            #If Wet Road
-            if (self.worldKnowledge['map_params'][0]):
-                #And traveling over 30
-                if (self.vehicle.current_speed is not None):
-                    if (self.vehicle.current_speed > 10):
-                        if (random.randint(0,100) > 80):
-                            print("SPIN OUT")
-                            self.vehicle.spinOut = 3
-            if self.strategy is not None:
-                # TODO: Should probably find a more secure way to run custom agent scripts.
-                exec(self.strategy)
-            else:
-                self.default_strategy()
+            self.default_strategy()
 
     def default_strategy(self):
         pass
+
+    def aim_speed(self, speed):
+        cspeed = self.vehicle.current_speed
+        if (cspeed is None):
+            cspeed = 0
+        if (speed > cspeed):
+            diff = speed - cspeed
+            if (diff > self.vehicle.max_acceleration):
+                diff = self.vehicle.max_acceleration
+            self.vehicle.set_speed(cspeed + diff)
+        else:
+            diff = cspeed - speed
+            if (diff > self.vehicle.max_deceleration):
+                diff = self.vehicle.max_deceleration
+            self.vehicle.set_speed(cspeed - diff)
+
+    def aim_angle(self, angle):
+        cangle = self.vehicle.orientation
+        if (cangle is None):
+            cangle = 0
+        diff = int(math.fabs(angle - cangle))
+        if (diff > 180):
+            diff = 360 - diff
+            if (cangle < angle):
+                da = -diff
+            else:
+                da = diff
+        else:
+            if (cangle < angle):
+                da = diff
+            else:
+                da = -diff
+        self.vehicle.set_angle(da//3)
+
+    #Return Distance and Angle to current waypoint. Angle must be degrees clockwise from north
+    def get_vector_to_waypoint(self):
+        if (self.vehicle.position[0] != None and self.vehicle.position[1] != None):
+            wpi = self.get_waypoint_index()
+            if (wpi != None):
+                if (self.worldKnowledge['waypoints'] != []):
+                    x1 = self.vehicle.position[0]
+                    y1 = self.vehicle.position[1]
+                    x2 = self.worldKnowledge['waypoints'][wpi][0]
+                    y2 = self.worldKnowledge['waypoints'][wpi][1]
+                    dx = x2 - x1
+                    dy = y2 - y1
+                    dist = int(math.sqrt(dx*dx + dy*dy))
+                    theta = 0
+                    if (dx != 0):
+                        theta = math.atan(dy/dx)*(180/math.pi)
+                    if (dx == 0):
+                        if (dy <= 0):
+                            theta = 0
+                        else:
+                            theta = 180
+                    elif (dy == 0):
+                        if (dx < 0):
+                            theta = 90
+                        else:
+                            theta = 270
+                    elif (dx > 0 and dy > 0):
+                        theta = theta + 90
+                    elif (dx > 0 and dy < 0):
+                        theta = theta + 90
+                    elif (dx < 0 and dy > 0):
+                        theta = theta + 270
+                    elif (dx < 0 and dy < 0):
+                        theta = theta + 270
+
+                    return (dist,theta)
+        return (None,None)
+
+    #Return current waypoint index
+    def get_waypoint_index(self):
+        return self.worldKnowledge['waypoint_index']
+
+    # Set current waypoint index
+    def set_waypoint_index(self, wp):
+        mmax = len(self.worldKnowledge['waypoints']) - 1
+        if (wp > mmax):
+            wp = mmax
+        if (wp < 0):
+            wp = 0
+        self.worldKnowledge['waypoint_index'] = wp
