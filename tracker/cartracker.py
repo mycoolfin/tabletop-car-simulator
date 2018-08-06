@@ -1,4 +1,4 @@
-import math
+from collections import deque
 import numpy as np
 import cv2
 import time
@@ -26,6 +26,7 @@ class CarTracker:
         self.oldAngles = []
         self.oldHemispheres = []
 
+        self.car_pts = []
 
     def add_to_ROI_list(self, rect):
         thresh = 30
@@ -62,7 +63,7 @@ class CarTracker:
         _, cnts, _ = cv2.findContours(inv_floodfill, cv2.RETR_EXTERNAL,
                                 cv2.CHAIN_APPROX_SIMPLE)
 
-        for c in cnts:
+        for c in cnts:#
             perimeter = cv2.arcLength(c, True)
             poly = cv2.approxPolyDP(c, 0.02*perimeter, True)
             if len(poly) == 4:
@@ -75,9 +76,15 @@ class CarTracker:
 
                 self.add_to_ROI_list([int(x+w/4),int(y+h/4),int(w/2),int(h/2)]) # TEMP
 
-        cv2.imshow("1", image)
-        if cv2.waitKey(1) & 0xFF == 'q':
-            quit()
+
+        cv2.namedWindow("id")
+        cv2.moveWindow("id", 100,100)
+        cv2.imshow("id", image)
+        cv2.waitKey(1)
+
+        #cv2.imshow("1", image)
+        #if cv2.waitKey(1) & 0xFF == 'q':
+        #    quit()
 
         return num_cars_found
 
@@ -119,14 +126,11 @@ class CarTracker:
             roi_hist = cv2.calcHist([hsv_roi], [0], mask, [180], [0,180])
             cv2.normalize(roi_hist, roi_hist, 0, 255, cv2.NORM_MINMAX)
 
-            cv2.rectangle(image, (x, y), (x+w, y+h), (0,255,0)) # TEMP
-            cv2.imshow('TEST', image)
-            cv2.waitKey(10)
-
             self.car_ROI_hists.append(roi_hist)
             self.car_orientations.append(0)
             self.oldAngles.append(0)
             self.oldHemispheres.append(1)
+            self.car_pts.append(deque(maxlen=64))
         self.termination_criteria = ( cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 1 )
 
     def camshift_track(self, image):
@@ -167,12 +171,28 @@ class CarTracker:
             pts = np.int0(pts)
             cv2.polylines(image, [pts], True, 255, 2)
 
-        cv2.imshow('CAMSHIFT', image)
+            self.car_pts[i].appendleft(center)
+
+        for pts in self.car_pts:
+            for i in range(1, len(pts)):
+                # if either of the tracked points are None, ignore
+                # them
+                if pts[i - 1] is None or pts[i] is None:
+                    continue
+
+                # otherwise, compute the thickness of the line and
+                # draw the connecting lines
+                thickness = int(np.sqrt(64 / float(i + 1)) * 2)
+                cv2.line(image, pts[i - 1], pts[i], (200, 200, 0), thickness)
+
+        cv2.namedWindow("id")
+        cv2.moveWindow("id", 100,100)
+        cv2.imshow("id", image)
         if cv2.waitKey(1) & 0xFF == 'q':
             quit()
 
 
-def OLD_orientation_finding(self, image):
+def OLD_orientation_finding(image):
         hsv_img = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
 
         orange = cv2.inRange(hsv_img, ORANGE_MIN, ORANGE_MAX)
@@ -193,7 +213,7 @@ def OLD_orientation_finding(self, image):
 
         infoList = [#(orange_closed, orange_contours, (0, 136, 255)),
                     #(red_closed, red_contours, (0, 0, 255)),
-                    #(green_closed, green_contours, (0, 255, 0)),
+                    (green_closed, green_contours, (0, 255, 0)),
                     (pink_closed, pink_contours, (144, 0, 255))]
         for closed, contours, colour in infoList:
             if len(contours) > 0:
@@ -279,5 +299,3 @@ def OLD_orientation_finding(self, image):
         cv2.imshow("", image)
         cv2.waitKey(1)
 
-        car_data = None
-        return car_data

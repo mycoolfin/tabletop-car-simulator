@@ -72,10 +72,19 @@ class Display():
     def calibrationScreen(self, corners=None):
         self.screen.blit(self.calibration_img, (0, 0))
         if corners is not None:
-            tl = corners[0]
-            tr = corners[1]
-            bl = corners[2]
-            br = corners[3]
+            tl = corners[0][0]
+            tr = corners[0][1]
+            bl = corners[0][2]
+            br = corners[0][3]
+            pygame.draw.line(self.screen, (255, 0, 0), tl, tr, 5)
+            pygame.draw.line(self.screen, (255, 0, 0), tl, bl, 5)
+            pygame.draw.line(self.screen, (255, 0, 0), bl, br, 5)
+            pygame.draw.line(self.screen, (255, 0, 0), br, tr, 5)
+
+            tl = corners[1][0]
+            tr = corners[1][1]
+            bl = corners[1][2]
+            br = corners[1][3]
             pygame.draw.line(self.screen, (0, 255, 0), tl, tr, 5)
             pygame.draw.line(self.screen, (0, 255, 0), tl, bl, 5)
             pygame.draw.line(self.screen, (0, 255, 0), bl, br, 5)

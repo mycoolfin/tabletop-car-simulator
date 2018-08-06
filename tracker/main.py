@@ -51,9 +51,9 @@ def track(cam, tracker):
 
 def main():
     _ = Server()
-    cam = Camera()
     while True:
         print("Started listen loop.")
+        cam = Camera()
         calibrator = Calibrator()
         tracker = CarTracker()
         waitForSignal()
@@ -66,6 +66,7 @@ def main():
         # Start tracking.
         track(cam, tracker)
         cv2.destroyAllWindows()
+        cam.destroy()
 
 
 if __name__ == "__main__":
