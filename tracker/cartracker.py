@@ -21,7 +21,7 @@ class CarTracker:
     def __init__(self):
         self.last_locs = [[-1,-1],[-1,-1],[-1,-1]]
         self.last_angle = [0,0,0]
-        self.ticks = 0
+        self.last_time = time.time()
 
     def findCar(self, image):
         pos = [-1,-1]
@@ -57,10 +57,11 @@ class CarTracker:
     def track_cars(self, image):
         car_locations = []
         index = 0
+        current_time = time.time()
         while (index < 1):
             thresh = cv2.inRange(cv2.cvtColor(image,cv2.COLOR_BGR2HSV), COLOUR_MIN[index], COLOUR_MAX[index])
             cpos = self.findCar(thresh)
-            if (self.ticks > 10):
+            if ((current_time - self.last_time)*1000 > 100):
                 dx = cpos[0] - self.last_locs[index][0]
                 dy = cpos[1] - self.last_locs[index][1]
                 theta = 0
@@ -86,11 +87,9 @@ class CarTracker:
                     theta = theta + 270
                 self.last_angle[index] = theta
                 self.last_locs[index] = cpos
-                self.ticks = 0
+                self.last_time = current_time
 
             dict = {"ID": index, "position": cpos, "orientation": self.last_angle[index]}
             car_locations.append(dict)
             index += 1
-
-        self.ticks+=1
         return car_locations
