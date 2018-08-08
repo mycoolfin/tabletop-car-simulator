@@ -211,8 +211,8 @@ def OLD_orientation_finding(image):
         _, green_contours, _ = cv2.findContours(green_closed, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
         _, pink_contours, _ = cv2.findContours(pink_closed, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
 
-        infoList = [#(orange_closed, orange_contours, (0, 136, 255)),
-                    #(red_closed, red_contours, (0, 0, 255)),
+        infoList = [(orange_closed, orange_contours, (0, 136, 255)),
+                    (red_closed, red_contours, (0, 0, 255)),
                     (green_closed, green_contours, (0, 255, 0)),
                     (pink_closed, pink_contours, (144, 0, 255))]
         for closed, contours, colour in infoList:

@@ -52,28 +52,29 @@ def main(map_image_path, map_info_path, car_parameters, map_parameters):
         exit()
 
     # Initialise world.
-    f = open(map_info_path,'rb')
-    waypoints = eval(f.read())
+    #f = open(map_info_path,'rb')
+    #waypoints = eval(f.read())
+    waypoints = None
     world = World(agents, vehicles, waypoints, map_parameters)
 
-    # Display the car loading screen.
-    display.connectingToCarsScreen()
+    ## Display the car loading screen.
+    #display.connectingToCarsScreen()
 
-    # Initialise car communicator.
-    comms = CarCommunicator(vehicles)
+    ## Initialise car communicator.
+    #comms = CarCommunicator(vehicles)
 
-    while True:
-        # Display the identifying cars screen.
-        display.identifyingCarsScreen(world.getWorldData()['agents'])
-        numCarsFound = vision.confirm_identified()
-        if numCarsFound is None:
-            continue
-        elif numCarsFound != len(agents):
-            print(msgHeader + "Number of cars found (" + str(numCarsFound)
-                  + ") does not match the number of cars enabled (" + str(len(agents)) + "). Exiting...")
-            exit()
-        else:
-            break
+    #while True:
+    #    # Display the identifying cars screen.
+    #    display.identifyingCarsScreen(world.getWorldData()['agents'])
+    #    numCarsFound = vision.confirm_identified()
+    #    if numCarsFound is None:
+    #        continue
+    #    elif numCarsFound != len(agents):
+    #        print(msgHeader + "Number of cars found (" + str(numCarsFound)
+    #              + ") does not match the number of cars enabled (" + str(len(agents)) + "). Exiting...")
+    #        exit()
+    #    else:
+    #        break
 
     # Event loop.
     print(msgHeader + "Entering main loop.")
