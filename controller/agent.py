@@ -83,6 +83,34 @@ class Agent():
                 da = -diff
         self.vehicle.set_angle(da//3)
 
+    def get_vector_between_points(self,x1,y1,x2,y2):
+        if (x1 != None and y1 != None):
+            dx = x2 - x1
+            dy = y2 - y1
+            dist = int(math.sqrt(dx*dx + dy*dy))
+            theta = 0
+            if (dx != 0):
+                theta = math.atan(dy/dx)*(180/math.pi)
+            if (dx == 0):
+                if (dy <= 0):
+                    theta = 0
+                else:
+                    theta = 180
+            elif (dy == 0):
+                if (dx < 0):
+                    theta = 270
+                else:
+                    theta = 90
+            elif (dx > 0 and dy > 0):
+                theta = theta + 90
+            elif (dx > 0 and dy < 0):
+                theta = theta + 90
+            elif (dx < 0 and dy > 0):
+                theta = theta + 270
+            elif (dx < 0 and dy < 0):
+                theta = theta + 270
+            return (dist,theta)
+        return (None,None)
     #Return Distance and Angle to current waypoint. Angle must be degrees clockwise from north
     def get_vector_to_waypoint(self):
         if (self.vehicle.position[0] != None and self.vehicle.position[1] != None):
@@ -93,32 +121,7 @@ class Agent():
                     y1 = self.vehicle.position[1]
                     x2 = self.worldKnowledge['waypoints'][wpi][0]
                     y2 = self.worldKnowledge['waypoints'][wpi][1]
-                    dx = x2 - x1
-                    dy = y2 - y1
-                    dist = int(math.sqrt(dx*dx + dy*dy))
-                    theta = 0
-                    if (dx != 0):
-                        theta = math.atan(dy/dx)*(180/math.pi)
-                    if (dx == 0):
-                        if (dy <= 0):
-                            theta = 0
-                        else:
-                            theta = 180
-                    elif (dy == 0):
-                        if (dx < 0):
-                            theta = 90
-                        else:
-                            theta = 270
-                    elif (dx > 0 and dy > 0):
-                        theta = theta + 90
-                    elif (dx > 0 and dy < 0):
-                        theta = theta + 90
-                    elif (dx < 0 and dy > 0):
-                        theta = theta + 270
-                    elif (dx < 0 and dy < 0):
-                        theta = theta + 270
-
-                    return (dist,theta)
+                    return self.get_vector_between_points(x1,y1,x2,y2)
         return (None,None)
 
     #Return current waypoint index
@@ -129,7 +132,11 @@ class Agent():
     def set_waypoint_index(self, wp):
         mmax = len(self.worldKnowledge['waypoints']) - 1
         if (wp > mmax):
-            wp = mmax
-        if (wp < 0):
             wp = 0
+        if (wp < 0):
+            wp = mmax
         self.worldKnowledge['waypoint_index'] = wp
+    
+    #Check if there are any cars in front of us
+    def check_current_direction(self):
+        (dist,theta) = get_vector()

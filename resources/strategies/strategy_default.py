@@ -29,7 +29,7 @@ else:
             
     #Drive slowly towards current waypoint. Slow down drastically if we are not directed towards the waypoint
     else:
-        speed = 7
+        speed = 8
         car_angle = self.vehicle.get_orientation()
         a = int(math.fabs(car_angle - wp_angle))
         if (a > 180):
