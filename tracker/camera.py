@@ -1,13 +1,24 @@
 import cv2
 from threading import Thread
+import os
 import time
 
 
 CAPTURE_WIDTH = 640
 CAPTURE_HEIGHT = 480
 
+camSetupScript = 	"""
+					v4l2-ctl \
+					-c auto_exposure=1 \
+					-c exposure_time_absolute=100 \
+					-c white_balance_auto_preset=0 \
+					-c red_balance=2000 \
+					-c blue_balance=1500
+					"""
+
 class Camera:
 	def __init__(self):
+		os.system(camSetupScript)
 		self.stream = cv2.VideoCapture(0)
 		self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, CAPTURE_WIDTH)
 		self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, CAPTURE_HEIGHT)

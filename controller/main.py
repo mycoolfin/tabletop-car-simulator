@@ -8,56 +8,56 @@ import time
 
 msgHeader = "[MAIN]: "
 
+
 def main(map_image_path, map_info_path, car_parameters, map_parameters):
-    print("")
-    print("========================================")
-    print("         TABLETOP CAR SIMULATOR         ")
-    print("========================================")
-    print("")
+	print("")
+	print("========================================")
+	print("         TABLETOP CAR SIMULATOR         ")
+	print("========================================")
+	print("")
 
-    print(msgHeader + "Begin initialisation.")
+	print(msgHeader + "Begin initialisation.")
 
-    # Initialise display.
-    display = Display(map_image_path=map_image_path)
+	# Initialise display.
+	display = Display(map_image_path=map_image_path)
 
-    # Initialise vision server.
-    display.connectingToTrackerScreen()
-    vision = Vision()
+	# Initialise vision server.
+	display.connectingToTrackerScreen()
+	vision = Vision()
 
-    # Initialise agents and their vehicles.
-    agents = []
-    vehicles = []
-    for car in car_parameters:
-        enabled = car[2]
-        if not enabled:
-            continue
-        agentID = MAC_TO_ID[car[1]]
-        agent = Agent(agentID, agentType=car[4], vehicleType=car[5], strategyFile=car[3])
-        agents.append(agent)
-        vehicles.append(agent.vehicle)
+	# Initialise agents and their vehicles.
+	agents = []
+	vehicles = []
+	for car in car_parameters:
+		enabled = car[2]
+		if not enabled:
+			continue
+		agentID = MAC_TO_ID[car[1]]
+		agent = Agent(agentID, agentType=car[4], vehicleType=car[5], strategyFile=car[3])
+		agents.append(agent)
+		vehicles.append(agent.vehicle)
 
-    if not agents:
-        print(msgHeader + "No cars enabled. Exiting...")
-        exit()
+	if not agents:
+		print(msgHeader + "No cars enabled. Exiting...")
+		exit()
 
-    # Initialise world.
-    f = open(map_info_path,'rb')
-    waypoints = eval(f.read())
-    world = World(agents, vehicles, waypoints, map_parameters)
+	# Initialise world.
+	f = open(map_info_path, 'rb')
+	waypoints = eval(f.read())
+	world = World(agents, vehicles, waypoints, map_parameters)
 
-    # Display the car loading screen.
-    display.connectingToCarsScreen()
+	# Display the car loading screen.
+	display.connectingToCarsScreen()
 
-    # Initialise car communicator.
-    comms = CarCommunicator(vehicles)
+	# Initialise car communicator.
+	comms = CarCommunicator(vehicles)
 
-    # Event loop.
-    print(msgHeader + "Entering main loop.")
-    while True:
-        car_locations = vision.locateCars()
-        world.update(car_locations)
-        display.update(world.getWorldData())
-        for agent in agents:
-            agent.update_world_knowledge(world.getWorldData())
-            agent.make_decision()
-
+	# Event loop.
+	print(msgHeader + "Entering main loop.")
+	while True:
+		car_locations = vision.locateCars()
+		world.update(car_locations)
+		display.update(world.getWorldData())
+		for agent in agents:
+			agent.update_world_knowledge(world.getWorldData())
+			agent.make_decision()

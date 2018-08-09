@@ -13,65 +13,68 @@ TRACK_PHRASE = "track".encode('utf-8')
 
 
 class Vision():
-    def __init__(self):
-        self.client = Client()
-        print(msgHeader + "Connecting to the tracker...")
-        # Try to connect to the tracker server.
-        if not self.client.connect():
-            print(msgHeader + "Could not connect to the tracker. Exiting...")
-            exit()
-        print(msgHeader + "Initialisation complete.")
+	def __init__(self):
+		self.client = Client()
+		print(msgHeader + "Connecting to the tracker...")
+		# Try to connect to the tracker server.
+		if not self.client.connect():
+			print(msgHeader + "Could not connect to the tracker. Exiting...")
+			exit()
+		print(msgHeader + "Initialisation complete.")
 
-    def get_tracker_data(self):
-        data = parse_json(self.client.send_message(TRACK_PHRASE))
-        return data
+	def get_tracker_data(self):
+		data = parse_json(self.client.send_message(TRACK_PHRASE))
+		return data
 
-    # Return the ID, pixel coordinates and orientation of every ZenWheels car.
-    def locateCars(self):
-        visionData = self.get_tracker_data()
-        if visionData == None:
-            return []
-        return visionData
+	# Return the ID, pixel coordinates and orientation of every ZenWheels car.
+	def locateCars(self):
+		visionData = self.get_tracker_data()
+		if visionData == None:
+			return []
+		return visionData
 
 
 # TODO: Make server interactions non-blocking?
 class Client:
-    def __init__(self):
-        self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.isConnected = False
-    def connect(self):
-        try:
-            self.s.settimeout(3)  # Timeout after a 3 second wait.
-            self.s.connect((socket.gethostbyname(TRACKER_HOST), TRACKER_PORT))
-            self.s.settimeout(None)  # Set socket back to blocking.
-            self.isConnected = True
-            return True
-        except Exception as e:
-            print(e)
-            return False
-    def send_message(self, msg):
-        try:
-            self.s.send(msg)
-            data = self.s.recv(BUF_SIZE)
-            return data
-        except Exception as e:
-            print("LASTMSG: ", msg)
-            print(e)
-            self.isConnected = False
-            print(msgHeader + "Lost connection to tracker. Exiting...")
-            exit()
+	def __init__(self):
+		self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+		self.isConnected = False
+
+	def connect(self):
+		try:
+			self.s.settimeout(3)  # Timeout after a 3 second wait.
+			self.s.connect((socket.gethostbyname(TRACKER_HOST), TRACKER_PORT))
+			self.s.settimeout(None)  # Set socket back to blocking.
+			self.isConnected = True
+			return True
+		except Exception as e:
+			print(e)
+			return False
+
+	def send_message(self, msg):
+		try:
+			self.s.send(msg)
+			data = self.s.recv(BUF_SIZE)
+			return data
+		except Exception as e:
+			print("LASTMSG: ", msg)
+			print(e)
+			self.isConnected = False
+			print(msgHeader + "Lost connection to tracker. Exiting...")
+			exit()
 
 
 def parse_json(msg):
-    if msg is None or msg == b'':
-        return None
-    try:
-        dict = json.loads(msg.decode('utf-8'))
-        return dict
-    except Exception as e:
-        print("BAD MSG: ", msg)
-        print("JSON:", e)
-        return None
+	if msg is None or msg == b'':
+		return None
+	try:
+		dict = json.loads(msg.decode('utf-8'))
+		return dict
+	except Exception as e:
+		print("BAD MSG: ", msg)
+		print("JSON:", e)
+		return None
+
 
 if __name__ == "__main__":
-    v = Vision()
+	v = Vision()

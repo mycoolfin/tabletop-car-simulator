@@ -1,95 +1,95 @@
-from collections import deque
 import numpy as np
 import cv2
 import time
 import math
 
-RED_MIN = np.array([172, 40, 40],np.uint8)
-RED_MAX = np.array([180, 255, 210],np.uint8)
-ORANGE_MIN = np.array([0, 50, 50],np.uint8)
-ORANGE_MAX = np.array([20, 255, 255],np.uint8)
-GREEN_MIN = np.array([50, 60, 60],np.uint8)
-GREEN_MAX = np.array([60, 220, 220],np.uint8)
-PINK_MIN = np.array([130, 40, 40],np.uint8)
-PINK_MAX = np.array([180, 220, 220],np.uint8)
-COLOUR_MIN = [PINK_MIN]
-COLOUR_MAX = [PINK_MAX]
-IDs = [10]
+RED_ID = "7"
+RED_MIN = np.array([0, 150, 0], np.uint8)
+RED_MAX = np.array([4, 255, 150], np.uint8)
+ORANGE_ID = "45"
+ORANGE_MIN = np.array([5, 100, 150], np.uint8)
+ORANGE_MAX = np.array([10, 255, 255], np.uint8)
+GREEN_ID = "61"
+GREEN_MIN = np.array([35, 70, 50], np.uint8)
+GREEN_MAX = np.array([45, 200, 255], np.uint8)
+PINK_ID = "10"
+PINK_MIN = np.array([160, 70, 50], np.uint8)
+PINK_MAX = np.array([180, 200, 255], np.uint8)
+
+cars_info = [[RED_ID, RED_MIN, RED_MAX],
+			 [ORANGE_ID, ORANGE_MIN, ORANGE_MAX],
+			 [GREEN_ID, GREEN_MIN, GREEN_MAX],
+			 [PINK_ID, PINK_MIN, PINK_MAX]]
 
 
 class CarTracker:
-    def __init__(self):
-        self.last_locs = [[-1,-1],[-1,-1],[-1,-1]]
-        self.last_angle = [0,0,0]
-        self.last_time = time.time()
+	def __init__(self):
+		self.last_locations = {}
+		self.last_angles = {}
+		self.last_times = {}
 
-    def findCar(self, image):
-        pos = [-1,-1]
-        scan_y = []
-        y = 0
-        while (y < 480):
-            scan_value = cv2.countNonZero(image[y,0:640])
-            if (scan_value > 0):
-                if (len(scan_y) == 0):
-                    pos[1] = y
-                scan_y.append(scan_value)
-            else:
-                if (len(scan_y) > 0):
-                    pos[1] += len(scan_y) // 2
-                    break
-            y = y + 1
+	def track_cars(self, image):
+		car_locations = []
+		hsv_img = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
 
-        scan_x = []
-        x = 0
-        while (x < 640):
-            scan_value = cv2.countNonZero(image[0:480,x])
-            if (scan_value > 0):
-                if (len(scan_x) == 0):
-                    pos[0] = x
-                scan_x.append(scan_value)
-            else:
-                if (len(scan_x) > 0):
-                    pos[0] += len(scan_x) // 2
-                    break
-            x = x + 1
-        return pos
+		for car_info in cars_info:
+			hue_mask = cv2.inRange(hsv_img, car_info[1], car_info[2])
+			dilated = cv2.dilate(hue_mask, np.ones((5,5), np.uint8))
+			_, contours, _ = cv2.findContours(dilated, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
-    def track_cars(self, image):
-        car_locations = []
-        index = 0
-        current_time = time.time()
-        while (index < 1):
-            thresh = cv2.inRange(cv2.cvtColor(image,cv2.COLOR_BGR2HSV), COLOUR_MIN[index], COLOUR_MAX[index])
-            cpos = self.findCar(thresh)
-            if ((current_time - self.last_time)*1000 > 100):
-                dx = cpos[0] - self.last_locs[index][0]
-                dy = cpos[1] - self.last_locs[index][1]
-                theta = 0
-                if (dx != 0):
-                    theta = math.atan(dy/dx)*(180/math.pi)
-                if (dx == 0):
-                    if (dy <= 0):
-                        theta = 0
-                    else:
-                        theta = 180
-                elif (dy == 0):
-                    if (dx < 0):
-                        theta = 90
-                    else:
-                       theta = 270
-                elif (dx > 0 and dy > 0):
-                    theta = theta + 90
-                elif (dx > 0 and dy < 0):
-                   theta = theta + 90
-                elif (dx < 0 and dy > 0):
-                   theta = theta + 270
-                elif (dx < 0 and dy < 0):
-                    theta = theta + 270
-                self.last_angle[index] = theta
-                self.last_locs[index] = cpos
-                self.last_time = current_time
+			potentialMatches = []
+			for c in contours:
+				area = cv2.contourArea(c)
+				perimeter = cv2.arcLength(c, True)
+				ratio = area / perimeter
+				if area > 300 and area < 800 and ratio > 3.5:
+					potentialMatches.append(c)
+			if not potentialMatches:
+				continue
+			bestMatch = max(potentialMatches, key=cv2.contourArea)
+			moments = cv2.moments(bestMatch)
+			cx = int(moments['m10'] / moments['m00'])
+			cy = int(moments['m01'] / moments['m00'])
 
-            dict = {"ID": index, "position": cpos, "orientation": self.last_angle[index]}
-            car_locations.append(dict)
-            index += 1
-        return car_locations
+			car_id = car_info[0]
+			car_position = (cx, cy)
+
+			current_time = time.time()
+			if not car_id in self.last_locations.keys():
+				self.last_locations[car_id] = car_position
+				self.last_angles[car_id] = None
+				self.last_times[car_id] = time.time()
+
+			if ((current_time - self.last_times[car_id]) * 1000 > 100):
+				dx = car_position[0] - self.last_locations[car_id][0]
+				dy = car_position[1] - self.last_locations[car_id][1]
+				theta = 0
+				if (dx != 0):
+					theta = math.atan(dy / dx) * (180 / math.pi)
+				if (dx == 0):
+					if (dy <= 0):
+						theta = 0
+					else:
+						theta = 180
+				elif (dy == 0):
+					if (dx < 0):
+						theta = 90
+					else:
+						theta = 270
+				elif (dx > 0 and dy > 0):
+					theta = theta + 90
+				elif (dx > 0 and dy < 0):
+					theta = theta + 90
+				elif (dx < 0 and dy > 0):
+					theta = theta + 270
+				elif (dx < 0 and dy < 0):
+					theta = theta + 270
+
+
+				self.last_times[car_id] = current_time
+				self.last_angles[car_id] = int(theta)
+				self.last_locations[car_id] = car_position
+
+			car_locations.append({"ID": car_id, "position": car_position, "orientation": self.last_angles[car_id]})
+
+		return car_locations

@@ -7,7 +7,7 @@ Aim to slowly navigate waypoints in an orderly fashion with some basic error che
 
 
 #If we don't know where we are, STOP
-if self.vehicle.position == (None, None):
+if self.vehicle.position == (None, None) or self.vehicle.orientation == None:
     self.vehicle.stop()
 
 
