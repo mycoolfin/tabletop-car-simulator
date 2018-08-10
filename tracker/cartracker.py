@@ -94,7 +94,7 @@ class CarTracker:
 					# Filter out 180 degree flips.
 					if self.last_angles[car_id] is not None:
 						diff = abs(theta - self.last_angles[car_id])
-						if diff > 170 and diff < 190:
+						if diff > 120 and diff < 240:
 							# Ignore flip.
 							theta = self.last_angles[car_id]
 

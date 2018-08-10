@@ -44,6 +44,9 @@ def make_decision(self):
 
 	# Find waypoint vector info
 	(wp_dist, wp_angle) = self.get_vector_to_waypoint()
+	if wp_dist is None:
+		self.vehicle.stop()
+		return
 
 	if (wp_dist < 50): # If we are close enough to our waypoint, set our sights on the next one
 		self.set_waypoint_index(self.get_waypoint_index() + 1)

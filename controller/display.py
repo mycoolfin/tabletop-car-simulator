@@ -21,7 +21,7 @@ class Display():
 		if map_image_path:
 			self.background_image_path = map_image_path
 		pygame.init()
-		self.screen = pygame.display.set_mode((DISPLAY_WIDTH, DISPLAY_HEIGHT), pygame.RESIZABLE)
+		self.screen = pygame.display.set_mode((DISPLAY_WIDTH, DISPLAY_HEIGHT), pygame.FULLSCREEN)
 		self.font = pygame.font.SysFont('Arial', 30)
 		self.background_image = self.loadBackground()
 		self.calibration_img = self.loadCalibrationImage()
@@ -125,7 +125,6 @@ class Display():
 	def handle_input(self):
 		for event in pygame.event.get():
 			if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
-				pygame.quit()
 				self.isDisplaying = False
 
 	# Update the world display.
