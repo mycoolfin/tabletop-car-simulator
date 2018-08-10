@@ -1,6 +1,8 @@
+import time
 import math
-
+from threading import Thread
 import controller.vehicle as vehicle
+import controller.world as world
 
 msgHeader = "[AGENT]: "
 
@@ -28,28 +30,40 @@ class Agent():
 		self.strategy = None
 		if strategyFile is not None:
 			try:
-				with open(strategyFile, "r") as f:
-					self.strategy = f.read()
+				self.strategy = self.import_file("strategy", strategyFile)
 				print(msgHeader + "Successfully loaded the strategy file for Agent " + self.ID + ".")
 			except:
-				print(msgHeader + "Could not open the strategy file for Agent " + self.ID + ". (Fatal)")
+				print(msgHeader + "Could not load the strategy file for Agent " + self.ID + ". (Fatal)")
 				exit()
 
+		self.stopped = False
+		self.start()
+
+	def start(self):
+		Thread(target=self.update, args=()).start()
+		return self
+
+	def update(self):
+		while True:
+			if self.stopped or not self.strategy:
+				return
+			self.strategy.make_decision(self)
+			time.sleep(0.5)
+
+	def stop(self):
+		self.stopped = True
+
+	def import_file(self, full_name, path):
+		from importlib import util
+		spec = util.spec_from_file_location(full_name, path)
+		mod = util.module_from_spec(spec)
+		spec.loader.exec_module(mod)
+		return mod
+
 	def update_world_knowledge(self, worldData):
-		# TODO: Work on this.
 		for key in self.worldKnowledge:
 			if key in worldData:
 				self.worldKnowledge[key] = worldData[key]
-
-	def make_decision(self):
-		if self.strategy is not None:
-			# TODO: Should probably find a more secure way to run custom agent scripts.
-			exec(self.strategy)
-		else:
-			self.default_strategy()
-
-	def default_strategy(self):
-		pass
 
 	def aim_speed(self, speed):
 		cspeed = self.vehicle.current_speed
@@ -139,6 +153,3 @@ class Agent():
 			wp = mmax
 		self.worldKnowledge['waypoint_index'] = wp
 
-	# Check if there are any cars in front of us
-	def check_current_direction(self):
-		(dist, theta) = get_vector()

@@ -60,4 +60,3 @@ def main(map_image_path, map_info_path, car_parameters, map_parameters):
 		display.update(world.getWorldData())
 		for agent in agents:
 			agent.update_world_knowledge(world.getWorldData())
-			agent.make_decision()

@@ -29,6 +29,7 @@ class CarTracker:
 		self.last_times = {}
 
 	def track_cars(self, image):
+		start = time.time()
 		car_locations = []
 		hsv_img = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
 
@@ -60,9 +61,12 @@ class CarTracker:
 				self.last_angles[car_id] = None
 				self.last_times[car_id] = time.time()
 
-			if ((current_time - self.last_times[car_id]) * 1000 > 100):
+			if ((current_time - self.last_times[car_id]) * 1000 > 500):
 				dx = car_position[0] - self.last_locations[car_id][0]
 				dy = car_position[1] - self.last_locations[car_id][1]
+
+				# TODO: Filter out small dx, dy values here.
+
 				theta = 0
 				if (dx != 0):
 					theta = math.atan(dy / dx) * (180 / math.pi)
@@ -85,6 +89,13 @@ class CarTracker:
 				elif (dx < 0 and dy < 0):
 					theta = theta + 270
 
+				# Filter out 180 degree flips.
+				if self.last_angles[car_id] is not None:
+					diff = abs(theta - self.last_angles[car_id])
+					if diff > 170 and diff < 190:
+						# Ignore flip.
+						theta = self.last_angles[car_id]
+
 
 				self.last_times[car_id] = current_time
 				self.last_angles[car_id] = int(theta)
@@ -92,4 +103,18 @@ class CarTracker:
 
 			car_locations.append({"ID": car_id, "position": car_position, "orientation": self.last_angles[car_id]})
 
+		end = time.time()
+		ms = str(int((end-start)*1000)) + " ms"
+		print(ms)
+		if car_locations:
+			for car in car_locations:
+				print("-------------------------------------")
+				print("Agent " + str(car['ID']))
+				print("Position: " + str(car['position']))
+				print("Orientation: " + str(car['orientation']))
+				print("-------------------------------------")
+				print("")
+		else:
+			print("No cars found.")
+		print("")
 		return car_locations

@@ -1,4 +1,3 @@
-import copy
 
 msgHeader = "[WORLD]: "
 
@@ -37,7 +36,6 @@ class World():
 			if not updated:
 				known_vehicle.position = (None, None)
 				known_vehicle.orientation = None
-		#print(self.worldData['vehicles'][0].position, self.worldData['vehicles'][0].orientation)
 
 	def getWorldData(self):
-		return copy.deepcopy(self.worldData)
+		return dict(self.worldData)
