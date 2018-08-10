@@ -3,7 +3,7 @@ import cv2
 import time
 import math
 
-RED_ID = "7"
+RED_ID = "72"
 RED_MIN = np.array([0, 150, 0], np.uint8)
 RED_MAX = np.array([4, 255, 150], np.uint8)
 ORANGE_ID = "45"
