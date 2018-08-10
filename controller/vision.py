@@ -60,8 +60,8 @@ class Client:
 			print("LASTMSG: ", msg)
 			print(e)
 			self.isConnected = False
-			print(msgHeader + "Lost connection to tracker. Exiting...")
-			exit()
+			print(msgHeader + "Lost connection to tracker.")
+
 
 
 def parse_json(msg):

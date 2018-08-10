@@ -25,6 +25,7 @@ class Display():
 		self.font = pygame.font.SysFont('Arial', 30)
 		self.background_image = self.loadBackground()
 		self.calibration_img = self.loadCalibrationImage()
+		self.isDisplaying = True
 		print(msgHeader + "Initialisation complete.")
 
 	# Load and scale background image.
@@ -125,7 +126,7 @@ class Display():
 		for event in pygame.event.get():
 			if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
 				pygame.quit()
-				exit()
+				self.isDisplaying = False
 
 	# Update the world display.
 	def update(self, worldData):

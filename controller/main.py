@@ -55,8 +55,14 @@ def main(map_image_path, map_info_path, car_parameters, map_parameters):
 	# Event loop.
 	print(msgHeader + "Entering main loop.")
 	while True:
+		# Check if tracker is still connected.
+		if not vision.client.isConnected or not display.isDisplaying:
+			break
 		car_locations = vision.locateCars()
 		world.update(car_locations)
 		display.update(world.getWorldData())
 		for agent in agents:
 			agent.update_world_knowledge(world.getWorldData())
+	for agent in agents:
+		agent.stop()
+	print(msgHeader + "Quitting.")

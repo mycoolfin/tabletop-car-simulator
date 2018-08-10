@@ -30,7 +30,7 @@ class Agent():
 		self.strategy = None
 		if strategyFile is not None:
 			try:
-				self.strategy = self.import_file("strategy", strategyFile)
+				self.strategy = import_file("strategy", strategyFile)
 				print(msgHeader + "Successfully loaded the strategy file for Agent " + self.ID + ".")
 			except:
 				print(msgHeader + "Could not load the strategy file for Agent " + self.ID + ". (Fatal)")
@@ -52,13 +52,6 @@ class Agent():
 
 	def stop(self):
 		self.stopped = True
-
-	def import_file(self, full_name, path):
-		from importlib import util
-		spec = util.spec_from_file_location(full_name, path)
-		mod = util.module_from_spec(spec)
-		spec.loader.exec_module(mod)
-		return mod
 
 	def update_world_knowledge(self, worldData):
 		for key in self.worldKnowledge:
@@ -153,3 +146,10 @@ class Agent():
 			wp = mmax
 		self.worldKnowledge['waypoint_index'] = wp
 
+
+def import_file(full_name, path):
+	from importlib import util
+	spec = util.spec_from_file_location(full_name, path)
+	mod = util.module_from_spec(spec)
+	spec.loader.exec_module(mod)
+	return mod

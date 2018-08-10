@@ -22,12 +22,18 @@ def make_decision(self):
 	for vehicle in self.worldKnowledge['vehicles']:
 		if vehicle.owner.ID == self.vehicle.owner.ID or vehicle.position == (None, None):
 			continue
-		# Get distances to other cars.
-		xDist = vehicle.position[0] - self.vehicle.position[0]
-		yDist = vehicle.position[1] - self.vehicle.position[1]
-		dist = math.hypot(xDist, yDist)
-		# If we are too close to another car, stop and complain.
-		if dist < 50:
+		# Get vectors to other cars.
+		x1 = self.vehicle.position[0]
+		y1 = self.vehicle.position[1]
+		x2 = vehicle.position[0]
+		y2 = vehicle.position[1]
+		dist, angle = self.get_vector_between_points(x1, y1, x2, y2)
+		cangle = self.vehicle.orientation
+		diff = int(math.fabs(angle - cangle))
+		if (diff > 180):
+			diff = 360 - diff
+		# If our nose is too close to another car, stop and complain.
+		if dist < 50 and diff < 90:
 			self.vehicle.stop()
 			self.vehicle.horn_on()
 			self.vehicle.headlights_on()

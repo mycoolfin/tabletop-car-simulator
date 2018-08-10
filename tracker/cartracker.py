@@ -58,43 +58,45 @@ class CarTracker:
 			current_time = time.time()
 			if not car_id in self.last_locations.keys():
 				self.last_locations[car_id] = car_position
-				self.last_angles[car_id] = None
+				self.last_angles[car_id] = 0
 				self.last_times[car_id] = time.time()
 
 			if ((current_time - self.last_times[car_id]) * 1000 > 500):
 				dx = car_position[0] - self.last_locations[car_id][0]
 				dy = car_position[1] - self.last_locations[car_id][1]
 
-				# TODO: Filter out small dx, dy values here.
+				# Filter out small dy, dx values.
+				if abs(dx) < 5 and abs(dy) < 5:
+					theta = self.last_angles[car_id]
+				else:
+					theta = 0
+					if (dx != 0):
+						theta = math.atan(dy / dx) * (180 / math.pi)
+					if (dx == 0):
+						if (dy <= 0):
+							theta = 0
+						else:
+							theta = 180
+					elif (dy == 0):
+						if (dx < 0):
+							theta = 90
+						else:
+							theta = 270
+					elif (dx > 0 and dy > 0):
+						theta = theta + 90
+					elif (dx > 0 and dy < 0):
+						theta = theta + 90
+					elif (dx < 0 and dy > 0):
+						theta = theta + 270
+					elif (dx < 0 and dy < 0):
+						theta = theta + 270
 
-				theta = 0
-				if (dx != 0):
-					theta = math.atan(dy / dx) * (180 / math.pi)
-				if (dx == 0):
-					if (dy <= 0):
-						theta = 0
-					else:
-						theta = 180
-				elif (dy == 0):
-					if (dx < 0):
-						theta = 90
-					else:
-						theta = 270
-				elif (dx > 0 and dy > 0):
-					theta = theta + 90
-				elif (dx > 0 and dy < 0):
-					theta = theta + 90
-				elif (dx < 0 and dy > 0):
-					theta = theta + 270
-				elif (dx < 0 and dy < 0):
-					theta = theta + 270
-
-				# Filter out 180 degree flips.
-				if self.last_angles[car_id] is not None:
-					diff = abs(theta - self.last_angles[car_id])
-					if diff > 170 and diff < 190:
-						# Ignore flip.
-						theta = self.last_angles[car_id]
+					# Filter out 180 degree flips.
+					if self.last_angles[car_id] is not None:
+						diff = abs(theta - self.last_angles[car_id])
+						if diff > 170 and diff < 190:
+							# Ignore flip.
+							theta = self.last_angles[car_id]
 
 
 				self.last_times[car_id] = current_time
