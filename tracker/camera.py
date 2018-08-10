@@ -12,9 +12,11 @@ camSetupScript = 	"""
 					-c auto_exposure=1 \
 					-c exposure_time_absolute=100 \
 					-c white_balance_auto_preset=0 \
-					-c red_balance=2000 \
-					-c blue_balance=1500
+					-c red_balance=2300 \
+					-c blue_balance=1400
 					"""
+# G04 values are red=2000 blue=1500
+
 
 class Camera:
 	def __init__(self):

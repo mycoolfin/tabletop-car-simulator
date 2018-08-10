@@ -15,6 +15,15 @@ GREEN_MAX = np.array([45, 200, 255], np.uint8)
 PINK_ID = "10"
 PINK_MIN = np.array([160, 70, 50], np.uint8)
 PINK_MAX = np.array([180, 200, 255], np.uint8)
+BLUE_ID = "5"
+BLUE_MIN = np.array([160, 70, 50], np.uint8)
+BLUE_MAX = np.array([180, 200, 255], np.uint8)
+YELLOW_ID = "47"
+YELLOW_MIN = np.array([160, 70, 50], np.uint8)
+YELLOW_MAX = np.array([180, 200, 255], np.uint8)
+BLACK_ID = "65"
+BLACK_MIN = np.array([160, 70, 50], np.uint8)
+BLACK_MAX = np.array([180, 200, 255], np.uint8)
 
 cars_info = [[RED_ID, RED_MIN, RED_MAX],
 			 [ORANGE_ID, ORANGE_MIN, ORANGE_MAX],
