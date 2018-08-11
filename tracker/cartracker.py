@@ -4,7 +4,7 @@ import time
 import math
 
 RED_ID = "72"
-RED_MIN = np.array([0, 150, 0], np.uint8)
+RED_MIN = np.array([0, 130, 0], np.uint8)
 RED_MAX = np.array([4, 255, 150], np.uint8)
 ORANGE_ID = "45"
 ORANGE_MIN = np.array([5, 100, 150], np.uint8)
@@ -16,19 +16,22 @@ PINK_ID = "10"
 PINK_MIN = np.array([160, 70, 50], np.uint8)
 PINK_MAX = np.array([180, 200, 255], np.uint8)
 BLUE_ID = "5"
-BLUE_MIN = np.array([160, 70, 50], np.uint8)
-BLUE_MAX = np.array([180, 200, 255], np.uint8)
+BLUE_MIN = np.array([80, 70, 50], np.uint8)
+BLUE_MAX = np.array([100, 200, 255], np.uint8)
 YELLOW_ID = "47"
-YELLOW_MIN = np.array([160, 70, 50], np.uint8)
-YELLOW_MAX = np.array([180, 200, 255], np.uint8)
+YELLOW_MIN = np.array([15, 70, 150], np.uint8)
+YELLOW_MAX = np.array([25, 200, 255], np.uint8)
 BLACK_ID = "65"
-BLACK_MIN = np.array([160, 70, 50], np.uint8)
-BLACK_MAX = np.array([180, 200, 255], np.uint8)
+BLACK_MIN = np.array([0, 70, 0], np.uint8)
+BLACK_MAX = np.array([180, 200, 30], np.uint8)
 
 cars_info = [[RED_ID, RED_MIN, RED_MAX],
 			 [ORANGE_ID, ORANGE_MIN, ORANGE_MAX],
 			 [GREEN_ID, GREEN_MIN, GREEN_MAX],
-			 [PINK_ID, PINK_MIN, PINK_MAX]]
+			 [PINK_ID, PINK_MIN, PINK_MAX],
+			 [BLUE_ID, BLUE_MIN, BLUE_MAX],
+			 [YELLOW_ID, YELLOW_MIN, YELLOW_MAX],
+			 [BLACK_ID, BLACK_MIN, BLACK_MAX]]
 
 
 class CarTracker:
@@ -36,6 +39,7 @@ class CarTracker:
 		self.last_locations = {}
 		self.last_angles = {}
 		self.last_times = {}
+		_, self.woodmask = cv2.threshold(cv2.imread("woodmask.jpg", 0), 30, 255, cv2.THRESH_BINARY)
 
 	def track_cars(self, image):
 		start = time.time()
@@ -45,14 +49,16 @@ class CarTracker:
 		for car_info in cars_info:
 			hue_mask = cv2.inRange(hsv_img, car_info[1], car_info[2])
 			dilated = cv2.dilate(hue_mask, np.ones((5,5), np.uint8))
+			dilated = cv2.bitwise_and(dilated, self.woodmask)
 			_, contours, _ = cv2.findContours(dilated, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
 			potentialMatches = []
 			for c in contours:
 				area = cv2.contourArea(c)
 				perimeter = cv2.arcLength(c, True)
-				ratio = area / perimeter
-				if area > 300 and area < 800 and ratio > 3.5:
+				if perimeter > 0: ratio = area / perimeter
+				else: ratio = 0
+				if area > 250 and area < 900 and ratio > 2.6:
 					potentialMatches.append(c)
 			if not potentialMatches:
 				continue
@@ -129,3 +135,16 @@ class CarTracker:
 			print("No cars found.")
 		print("")
 		return car_locations
+
+if __name__ == "__main__":
+	from camera import Camera
+	cam = Camera()
+	tracker = CarTracker()
+
+	while True:
+		image = cam.get_frame()
+		car_locations = tracker.track_cars(image)
+		for car in car_locations:
+			cv2.circle(image, (car['position'][0], car['position'][1]), 5, (0, 255, 0), -1)
+		cv2.imshow("", image)
+		cv2.waitKey(0)

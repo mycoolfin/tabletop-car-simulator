@@ -17,6 +17,7 @@ DEFAULT_MAP_PATH = os.path.join(os.path.dirname(__file__), '..',
 
 class Display():
 	def __init__(self, map_image_path=None):
+		self.DEBUG = False
 		self.background_image_path = DEFAULT_MAP_PATH
 		if map_image_path:
 			self.background_image_path = map_image_path
@@ -48,24 +49,25 @@ class Display():
 	# Create image from raw world data.
 	def createImage(self, worldData):
 		self.screen.blit(self.background_image, (0, 0))
-		yOffset = 0
-		for vehicle in worldData['vehicles']:
-			try:
-				pos = vehicle.position
-				pos[0] = int(pos[0] * (1600 / 640))
-				pos[1] = int(pos[1] * (1200 / 480))
-				angle = vehicle.orientation - 90
-				pygame.draw.circle(self.screen, (0, 0, 0), pos, 50, 1)
-				angleLine = (pos[0] + 200 * math.cos(math.radians(angle)), pos[1] + 200 * math.sin(math.radians(angle)))
-				pygame.draw.line(self.screen, (0, 0, 0), pos, angleLine, 5)
-				text = self.font.render("Agent " + str(vehicle.owner.ID) + ": " + str(pos) + ", " + str(angle), True,
-										(0, 0, 0))
-				self.screen.blit(text, (50, yOffset))
-				yOffset += 30
-				marker = self.font.render(str(vehicle.owner.ID), True, (0, 0, 0))
-				self.screen.blit(marker, pos)
-			except Exception as e:
-				print("Exception in display.createImage: " + str(e))
+		if self.DEBUG:
+			yOffset = 0
+			for vehicle in worldData['vehicles']:
+				try:
+					pos = vehicle.position
+					pos[0] = int(pos[0] * (1600 / 640))
+					pos[1] = int(pos[1] * (1200 / 480))
+					angle = vehicle.orientation - 90
+					pygame.draw.circle(self.screen, (0, 0, 0), pos, 50, 1)
+					angleLine = (pos[0] + 200 * math.cos(math.radians(angle)), pos[1] + 200 * math.sin(math.radians(angle)))
+					pygame.draw.line(self.screen, (0, 0, 0), pos, angleLine, 5)
+					text = self.font.render("Agent " + str(vehicle.owner.ID) + ": " + str(pos) + ", " + str(angle), True,
+											(0, 0, 0))
+					self.screen.blit(text, (50, yOffset))
+					yOffset += 30
+					marker = self.font.render(str(vehicle.owner.ID), True, (0, 0, 0))
+					self.screen.blit(marker, pos)
+				except Exception as e:
+					pass
 
 	def connectingToTrackerScreen(self):
 		self.screen.fill((255, 255, 255))
@@ -126,6 +128,7 @@ class Display():
 		for event in pygame.event.get():
 			if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
 				self.isDisplaying = False
+				pygame.quit()
 
 	# Update the world display.
 	def update(self, worldData):

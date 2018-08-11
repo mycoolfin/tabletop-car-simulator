@@ -230,13 +230,11 @@ def onClick_launch_button(button):
 		car_params = car_data
 		map_params = map_data
 		en_convert = [False, True]
-		index = 0
-		while (index < 4):
+		for index in range(len(car_data)):
 			car_params[index][2] = en_convert[car_data[index][2]]
 			car_params[index][3] = strategy_paths[car_data[index][3]]
 			car_params[index][4] = vision_modes[car_data[index][4]]
 			car_params[index][5] = car_types[car_data[index][5]]
-			index += 1
 		pygame.quit()
 		cont.main(map_paths[currentMap], map_info_paths[currentMap], car_params, map_params)
 

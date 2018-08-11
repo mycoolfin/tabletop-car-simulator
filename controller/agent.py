@@ -8,7 +8,7 @@ msgHeader = "[AGENT]: "
 
 
 class Agent():
-	def __init__(self, ID, agentType, vehicleType="car", strategyFile=None):
+	def __init__(self, ID, agentType="robot", vehicleType="car", strategyFile=None):
 		self.ID = str(ID)
 
 		if vehicleType.lower() == "car":
@@ -40,7 +40,9 @@ class Agent():
 		self.start()
 
 	def start(self):
-		Thread(target=self.update, args=()).start()
+		t_process = Thread(target=self.update)
+		t_process.daemon = True
+		t_process.start()
 		return self
 
 	def update(self):

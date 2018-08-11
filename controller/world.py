@@ -37,5 +37,20 @@ class World():
 				known_vehicle.position = (None, None)
 				known_vehicle.orientation = None
 
+		#### QUICK ADDITION FOR OPEN DAY
+		from controller.vehicle import Car
+		from controller.agent import Agent
+		for car in car_locations:
+			inWorldData = False
+			for vehicle in self.worldData['vehicles']:
+				if car['ID'] == vehicle.owner.ID:
+					inWorldData = True
+			if not inWorldData:
+				newVehicle = Car(Agent("0"))
+				newVehicle.position = car['position']
+				newVehicle.orientation = car['orientation']
+				self.worldData['vehicles'].append(newVehicle)
+
+
 	def getWorldData(self):
 		return dict(self.worldData)
