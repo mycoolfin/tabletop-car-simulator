@@ -31,7 +31,9 @@ class Camera:
 		self.start()
 
 	def start(self):
-		Thread(target=self.update, args=()).start()
+		t_process = Thread(target=self.update)
+		t_process.daemon = True
+		t_process.start()
 		return self
 
 	def update(self):
